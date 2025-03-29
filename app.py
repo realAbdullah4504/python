@@ -1,45 +1,25 @@
-import os
-import subprocess
-import sys
+import debugpy
+import time
 
-# Configuration
-EYEWITNESS_PATH = "./EyeWitness/Python/EyeWitness.py"  # Update if different
-URL_FILE = "urls.txt"  # File containing URLs (one per line)
-OUTPUT_DIR = "screenshots"  # Directory to store screenshots
-TIMEOUT = 15  # Timeout per request (in seconds)
-THREADS = 5  # Number of threads for parallel processing
+# Start Debugpy server (optional)
+debugpy.listen(("0.0.0.0", 5678))
+print("Waiting for debugger to attach...")
+debugpy.wait_for_client()  # Optional: Forces the app to wait for debugger attachment
 
-def run_eyewitness():
-    """Runs EyeWitness to capture screenshots."""
-    if not os.path.exists(URL_FILE):
-        print(f"❌ URL file '{URL_FILE}' not found!")
-        sys.exit(1)
+def slow_function():
+    for i in range(5):
+        print(f"Processing step {i + 1}...")
+        time.sleep(1)  # Simulate a slow operation
+    return "Done!"
 
-    # Ensure the output directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+def main():
+    print("Starting the application...")
+    
+    # Debugging breakpoint
+    debugpy.breakpoint()
 
-    # Construct the command
-    cmd = [
-    "python", EYEWITNESS_PATH,
-    "-f", URL_FILE,
-    "-d", OUTPUT_DIR,
-    "--no-prompt",
-    "--timeout", str(TIMEOUT),
-    "--threads", str(THREADS),
-    "--show-selenium"  # ✅ Forces Chrome to run on Windows
-]
-
-    print("🚀 Running EyeWitness to capture screenshots...")
-    try:
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        print(result.stdout)
-        if result.stderr:
-            print("⚠️ Errors:", result.stderr)
-    except Exception as e:
-        print(f"❌ Error running EyeWitness: {e}")
-        sys.exit(1)
-
-    print(f"✅ Screenshots saved in: {OUTPUT_DIR}")
+    result = slow_function()
+    print("Result:", result)
 
 if __name__ == "__main__":
-    run_eyewitness()
+    main()

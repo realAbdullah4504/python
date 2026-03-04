@@ -1,0 +1,247 @@
+TENDER SUMMARY
+==================================================
+NUMBER: 84/7-0152-LPR26
+DESCRIPTION: ADQUISICION DE DESIGNADOR LASER E ILUMINADOR - B HELIC ASAL 601
+TYPE: Licitación Privada
+DATE: 04/03/2026 09:00 Hrs.
+STATUS: Publicado
+
+
+FULL DETAIL PAGE
+==================================================
+Institucional
+Normativa
+Capacitación
+Atención al usuario
+Material de apoyo
+ Ingresar
+
+
+Proceso de compra
+
+
+Número de proceso
+
+84/7-0152-LPR26
+
+Número de expediente
+
+EX-2026-15502236-   -APN-DAE#EA
+
+Nombre descriptivo del proceso
+
+ADQUISICION DE DESIGNADOR LASER E ILUMINADOR - B HELIC ASAL 601
+
+Unidad Operativa de Contrataciones
+
+84/07 - Dirección de Aviación de Ejercito - Ejercito Argentino
+
+
+
+Información básica del proceso
+Nº de proceso
+
+84/7-0152-LPR26
+
+Nombre descriptivo de proceso
+
+ADQUISICION DE DESIGNADOR LASER E ILUMINADOR - B HELIC ASAL 601
+
+Objeto de la contratación
+
+ADQUISICION DE DESIGNADOR LASER E ILUMINADOR - B HELIC ASAL 601
+
+Procedimiento de selección
+
+Licitacion Privada
+
+Etapa
+
+Única
+
+Modalidad
+
+Sin modalidad
+
+Alcance
+
+Nacional
+
+Moneda
+
+Peso Argentino
+
+Encuadre legal
+
+Decreto Delegado N° 1023/2001 Art. 25
+Decreto N°1030/2016 Art.12
+
+
+Tipo de cotización
+
+No admite cotización parcial por renglón
+Podrán cotizar, uno, varios o todos los renglones
+
+Tipo de adjudicación
+
+Cada renglón se adjudicará en forma total
+Adjudicación por renglón
+
+Tipo documento que genera el proceso
+
+Orden de compra
+
+Lugar de recepción de documentación física
+
+Puerta 4 S/N, Campo de Mayo, Buenos Aires
+
+Plazo mantenimiento de la oferta
+
+60 Días corridos Acto de apertura
+
+Requiere pago
+
+No
+
+Otras condiciones
+
+Requiere asesoría técnica
+
+Área responsable: DEPARTAMENTO TÉCNICO - DIRECCIÓN DE AVIACIÓN DE EJÉRCITO
+
+
+
+
+Genera Recursos
+
+No
+
+
+Financiamiento Externo
+
+No
+
+
+Acepta prórroga
+
+No
+
+Solicitudes de contratación asignadas al proceso
+Número solicitud de contratación	Estado	Unidad Ejecutora	Rubro	Tipo de urgencia	Fecha creación
+84/7-8966-SCO25	Autorizada en Proceso	84/07 - Dirección de Aviación de Ejercito - Ejercito Argentino	REPUESTOS, SERV. PROFESIONAL Y COMERCIAL	Normal	15/12/2025
+Detalle de productos o servicios
+Número renglón	Objeto del gasto	Código del ítem	Descripción	Cantidad	Acciones
+1	2.9.6	2.9.6-5131.733	REP. Y ACC. P/ARMAMENTO; USO: FUSIL, ELEMENTO: ILUMINADOR/DESIGNADOR LASER/IR	10,00 UNIDAD	
+2	2.9.6	2.9.6-5131.733	REP. Y ACC. P/ARMAMENTO; USO: FUSIL, ELEMENTO: ILUMINADOR/DESIGNADOR LASER/IR	10,00 UNIDAD	
+
+
+
+Cronograma
+Fecha y hora estimada de publicación en el portal
+
+24/02/2026 08:00 Hrs.
+
+Fecha y hora inicio de consultas
+
+24/02/2026 08:05 Hrs.
+
+Fecha y hora final de consultas
+
+27/02/2026 08:00 Hrs.
+
+Cantidad de días a publicar
+
+Fecha y hora acto de apertura
+
+04/03/2026 09:00 Hrs.
+
+Pliego de bases y condiciones generales
+Pliego de Bases y Condiciones Generales	Disposición aprobatoria	Fecha creación
+
+
+DI-2024-79130471-APN-ONC#JGM 
+
+	
+
+DI-2024-79130471-APN-ONC#JGM 
+
+	31/08/2024
+
+
+Requisitos mínimos de participación
+I. Requisitos económicos y financieros
+No se ingresaron requisitos económicos.
+II. Requisitos técnicos
+Nº de requisito	Descripción	Tipo de documento
+1	ANEXO 3 - ANTECEDENTES DE SIMILARES CARACTERISTICAS.	Requiere adjuntar documentación electrónica
+2	ANEXO 4 - del PByCP - ESPECIFICACIÓN TÉCNICA Nro: 06/ASAL/25 DQUISICION DE DESIGNADOR LASER PARA ARMAMENTO FLEXIBLE (Uso con visores NVG).	
+3	ANEXO 5 – del PByCP - ESPECIFICACIÓN TÉCNICA Nro: 07/ASAL/25 ADQUISICION DE ILUMINADOR LASER PARA TRIPULACION (Uso con visores NVG)	
+III. Requisitos administrativos
+Nº de requisito	Descripción	Tipo de documento
+1	ANEXO 1 - DECLARACIÓN JURADA DE INTERESES Decreto N° 202/2017 - Comunicación General ONC N°7/24 y Comunicación General ONC N° 24/24.	Requiere adjuntar documentación electrónica
+2	ANEXO 2 - DECLARACIONES JURADAS.	Requiere adjuntar documentación electrónica
+
+
+Cláusulas particulares
+Documento	Número GDE	Número especial	Fecha vinculación	Opciones
+Clausulas Particulares	PLIEG-2026-18447146-APN-DAE#EA		23/02/2026	
+
+
+Garantías
+Garantía de impugnación a la evaluación
+La garantía de impugnación a la evaluación deber ser del tres por ciento (3%) del monto de la oferta del renglón o los renglones en cuyo favor se hubiere aconsejado adjudicar el contrato.
+Garantía de mantenimiento de oferta
+La garantía de mantenimiento de oferta debe ser del 5,00% sobre el monto total de la oferta
+
+Este proceso de compra No requiere incorporar garantía de mantenimiento de oferta para las ofertas menores a 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+Garantía de cumplimiento de contrato
+La garantía de cumplimiento de contrato debe ser del 10,00% del monto del contrato
+Este proceso de compra No requiere incorporar garantía de cumplimiento de contrato cuando el monto total del documento contractual no supere los 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+
+
+Este proceso de compra No requiere incorporar contragarantía.
+
+
+
+
+Información del contrato
+Fecha estimada del inicio del contrato
+
+A partir del perfeccionamiento del documento contractual
+
+Duración del contrato
+
+45 Días hábiles
+
+Penalidades
+Nº penalidad	Descripción
+1	Lo establecido en los Artículos 102 y 106 – del Anexo al Decreto Nº 1030/2016 – RÉGIMEN DE CONTRATACIONES DE LA ADMINISTRACIÓN NACIONAL.
+
+
+Anexos ingresados
+Nombre del Anexo	Tipo	Descripción	Acciones
+Anexo 1 - Comunicación ONC 24-2024..pdf	Administrativo	ANEXO 1 - DECLARACIÓN JURADA DE INTERESES Decreto N° 202/2017 - Comunicación General ONC N°7/24 y Comunicación General ONC N° 24/24.	
+Anexo 2 - Declaraciones Juradas.pdf	Administrativo	ANEXO 2 - DECLARACIONES JURADAS.	
+Anexo 3 - Antecedentes de Similares Caracteristicas.pdf	Técnico	ANEXO 3 - ANTECEDENTES DE SIMILARES CARACTERISTICAS.	
+ET-DESIGNADOR-LASER+(feb) 06.pdf	Técnico	ANEXO 4 - del PByCP - ESPECIFICACIÓN TÉCNICA Nro: 06/ASAL/25 DQUISICION DE DESIGNADOR LASER PARA ARMAMENTO FLEXIBLE (Uso con visores NVG).	
+ET+ILUMINADOR+LASER+(feb) 07.pdf	Técnico	ANEXO 5 – del PByCP - ESPECIFICACIÓN TÉCNICA Nro: 07/ASAL/25 ADQUISICION DE ILUMINADOR LASER PARA TRIPULACION (Uso con visores NVG)	
+
+
+Actos administrativos
+Documento	Número GDE	Número especial	Fecha vinculación	Opciones
+Autorización pliego	DI-2026-17841292-APN-DAE#EA	DI-2026-20-DAE#EA	23/02/2026	
+Autorización llamado	DI-2026-17841292-APN-DAE#EA	DI-2026-20-DAE#EA	23/02/2026	
+
+
+Volver
+Imprimir
+
+
+Secretaría Ejecutiva
+Oficina Nacional de Contrataciones
+Presidencia de la nación
+PRDFINMSAPPB09 v 1.1.906_COMPRAR
+Avisos sobre Navegadores
+Términos y Condiciones de Uso
+Preguntas Frecuentes
+  Envíenos por favor un ticket aquí

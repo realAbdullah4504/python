@@ -1,0 +1,240 @@
+TENDER SUMMARY
+==================================================
+NUMBER: 38/18-0090-LPR26
+DESCRIPTION: MANTENIMIENTO DE LOS EQUIPOS DESALINIZADORES DEL BUQUE ESCUELA FRAGATA A.R.A. “LIBERTAD”
+TYPE: Licitación Privada
+DATE: 04/03/2026 10:00 Hrs.
+STATUS: Publicado
+
+
+FULL DETAIL PAGE
+==================================================
+Institucional
+Normativa
+Capacitación
+Atención al usuario
+Material de apoyo
+ Ingresar
+
+
+Proceso de compra
+
+
+Número de proceso
+
+38/18-0090-LPR26
+
+Número de expediente
+
+EX-2026-15495528-   -APN-COTNEI#ARA
+
+Nombre descriptivo del proceso
+
+MANTENIMIENTO DE LOS EQUIPOS DESALINIZADORES DEL BUQUE ESCUELA FRAGATA A.R.A. “LIBERTAD”
+
+Unidad Operativa de Contrataciones
+
+38/18 - Division Contrataciones - Comando de Transportes Navales
+
+
+
+Información básica del proceso
+Nº de proceso
+
+38/18-0090-LPR26
+
+Nombre descriptivo de proceso
+
+MANTENIMIENTO DE LOS EQUIPOS DESALINIZADORES DEL BUQUE ESCUELA FRAGATA A.R.A. “LIBERTAD”
+
+Objeto de la contratación
+
+MANTENIMIENTO DE LOS EQUIPOS DESALINIZADORES DEL BUQUE ESCUELA FRAGATA A.R.A. “LIBERTAD”
+
+Procedimiento de selección
+
+Licitacion Privada
+
+Etapa
+
+Única
+
+Modalidad
+
+Sin modalidad
+
+Alcance
+
+Nacional
+
+Moneda
+
+Peso Argentino
+
+Encuadre legal
+
+Decreto Delegado N° 1023/2001 Art. 25
+Decreto N°1030/2016 Art.12
+
+
+Tipo de cotización
+
+No admite cotización parcial por renglón
+Podrán cotizar, uno, varios o todos los renglones
+
+Tipo de adjudicación
+
+Cada renglón se adjudicará en forma total
+Adjudicación por renglón
+
+Tipo documento que genera el proceso
+
+Orden de compra
+
+Lugar de recepción de documentación física
+
+Av. Pedro de Mendoza 550
+
+Plazo mantenimiento de la oferta
+
+60 Días corridos Acto de apertura
+
+Requiere pago
+
+No
+
+Otras condiciones
+
+Requiere asesoría técnica
+
+Área responsable: Unidad requirente
+
+
+
+
+Genera Recursos
+
+No
+
+
+Financiamiento Externo
+
+No
+
+
+Acepta prórroga
+
+No
+
+Solicitudes de contratación asignadas al proceso
+Número solicitud de contratación	Estado	Unidad Ejecutora	Rubro	Tipo de urgencia	Fecha creación
+38/18-84-SCO26	Autorizada en Proceso	38/18 - Division Contrataciones - Comando de Transportes Navales	MANT. REPARACION Y LIMPIEZA	Normal	23/01/2026
+Detalle de productos o servicios
+Número renglón	Objeto del gasto	Código del ítem	Descripción	Cantidad	Acciones
+1	3.3.3	3.3.3-4744.1	MANT. Y REPAR. EQ. AGUA; DESCRIPCION: MANT. Y REPAR. EQ. AGUA	1,00 SERVICIO	
+2	3.3.3	3.3.3-4744.1	MANT. Y REPAR. EQ. AGUA; DESCRIPCION: MANT. Y REPAR. EQ. AGUA	1,00 SERVICIO	
+
+
+
+Cronograma
+Fecha y hora estimada de publicación en el portal
+
+23/02/2026 12:00 Hrs.
+
+Fecha y hora inicio de consultas
+
+23/02/2026 12:05 Hrs.
+
+Fecha y hora final de consultas
+
+27/02/2026 10:00 Hrs.
+
+Cantidad de días a publicar
+
+Fecha y hora acto de apertura
+
+04/03/2026 10:00 Hrs.
+
+Pliego de bases y condiciones generales
+Pliego de Bases y Condiciones Generales	Disposición aprobatoria	Fecha creación
+
+
+DI-2024-79130471-APN-ONC#JGM 
+
+	
+
+DI-2024-79130471-APN-ONC#JGM 
+
+	31/08/2024
+
+
+Requisitos mínimos de participación
+I. Requisitos económicos y financieros
+Nº de requisito	Descripción	Tipo de documento
+1	Según cláusulas particulares	Requiere adjuntar documentación electrónica
+II. Requisitos técnicos
+Nº de requisito	Descripción	Tipo de documento
+1	Según cláusulas particulares	Requiere adjuntar documentación electrónica
+III. Requisitos administrativos
+Nº de requisito	Descripción	Tipo de documento
+1	Según cláusulas particulares	Requiere adjuntar documentación electrónica
+
+
+Cláusulas particulares
+Documento	Número GDE	Número especial	Fecha vinculación	Opciones
+Clausulas Particulares	PLIEG-2026-18347079-APN-COTNEI#ARA		23/02/2026	
+
+
+Garantías
+Garantía de impugnación a la evaluación
+La garantía de impugnación a la evaluación deber ser del tres por ciento (3%) del monto de la oferta del renglón o los renglones en cuyo favor se hubiere aconsejado adjudicar el contrato.
+Garantía de mantenimiento de oferta
+La garantía de mantenimiento de oferta debe ser del 5,00% sobre el monto total de la oferta
+
+Este proceso de compra No requiere incorporar garantía de mantenimiento de oferta para las ofertas menores a 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+Garantía de cumplimiento de contrato
+La garantía de cumplimiento de contrato debe ser del 10,00% del monto del contrato
+Este proceso de compra No requiere incorporar garantía de cumplimiento de contrato cuando el monto total del documento contractual no supere los 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+
+
+Este proceso de compra No requiere incorporar contragarantía.
+
+
+Otras Garantias
+Nª Garantia	Descripción
+1	Garantía técnica: Con su oferta, a la fecha de apertura del procedimiento se selección de cocontratantes al que se aplicará el presente Pliego de Bases y Condiciones Particulares, los oferentes deberán acompañar la respectiva garantía técnica -debidamente rubricada- en la que indicarán, expresamente, el plazo no inferior a 12 meses, contado desde la fecha en que se produzca la Recepción Definitiva. Será obligatorio que el proveedor adjunte junto con su propuesta técnica, una descripción detallada y por escrito del alcance de la garantía ofrecida, indicando: • Duración total de la garantía. • Cobertura específica sobre materiales, piezas y mano de obra. • Procedimientos para efectuar reclamos y activar la garantía. • Plazos estimados de atención y resolución de incidentes.
+
+
+Información del contrato
+Fecha estimada del inicio del contrato
+
+A partir del perfeccionamiento del documento contractual
+
+Duración del contrato
+
+30 Días corridos
+
+Penalidades
+Nº penalidad	Descripción
+1	Según cláusulas particulares
+
+
+
+Actos administrativos
+Documento	Número GDE	Número especial	Fecha vinculación	Opciones
+Autorización pliego	DI-2026-18350878-APN-COTNEI#ARA	DI-2026-57-COTNEI#ARA	23/02/2026	
+Autorización llamado	DI-2026-18350878-APN-COTNEI#ARA	DI-2026-57-COTNEI#ARA	23/02/2026	
+
+
+Volver
+Imprimir
+
+
+Secretaría Ejecutiva
+Oficina Nacional de Contrataciones
+Presidencia de la nación
+PRDFINMSAPPB09 v 1.1.906_COMPRAR
+Avisos sobre Navegadores
+Términos y Condiciones de Uso
+Preguntas Frecuentes
+  Envíenos por favor un ticket aquí

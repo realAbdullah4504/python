@@ -1,0 +1,275 @@
+TENDER SUMMARY
+==================================================
+NUMBER: 40/19-0120-CDI26
+DESCRIPTION: ADQUISICION ELEMENTOS DE LIMPIEZA
+TYPE: Contratación Directa
+DATE: 04/03/2026 09:00 Hrs.
+STATUS: Publicado
+
+
+FULL DETAIL PAGE
+==================================================
+Institucional
+Normativa
+Capacitación
+Atención al usuario
+Material de apoyo
+ Ingresar
+
+
+Proceso de compra
+
+
+Número de proceso
+
+40/19-0120-CDI26
+
+Número de expediente
+
+EX-2026-19421763-   -APN-IIIBAR#FAA
+
+Nombre descriptivo del proceso
+
+ADQUISICION ELEMENTOS DE LIMPIEZA
+
+Unidad Operativa de Contrataciones
+
+40/019 - UOC RTA
+
+
+
+Información básica del proceso
+Nº de proceso
+
+40/19-0120-CDI26
+
+Nombre descriptivo de proceso
+
+ADQUISICION ELEMENTOS DE LIMPIEZA
+
+Objeto de la contratación
+
+ADQUISICION ELEMENTOS DE LIMPIEZA
+
+Procedimiento de selección
+
+Contratacion Directa
+
+Etapa
+
+Única
+
+Modalidad
+
+Orden de compra abierta
+
+Alcance
+
+Nacional
+
+Moneda
+
+Peso Argentino
+
+Encuadre legal
+
+Decreto Delegado N° 1023/2001 Art. 25
+Decreto N°1030/2016 Art. 25
+Decreto N°1030/2016 Art.14
+
+
+Tipo de cotización
+
+No admite cotización parcial por renglón
+Podrán cotizar, uno, varios o todos los renglones
+
+Tipo de adjudicación
+
+Cada renglón se adjudicará en forma total
+Adjudicación por renglón
+
+Tipo documento que genera el proceso
+
+Orden de compra
+
+Lugar de recepción de documentación física
+
+Ruta Nacional N° 11 KM 783
+
+Plazo mantenimiento de la oferta
+
+60 Días corridos Acto de apertura
+
+Requiere pago
+
+No
+
+Otras condiciones
+
+
+
+
+Apartado
+
+Apartado 1: Compulsa Abreviada Por Monto
+
+Etapas del proceso de licitación
+ Autorización del pliego
+ Autorización de llamado
+ Acto de apertura
+Genera Recursos
+
+No
+
+
+Financiamiento Externo
+
+No
+
+
+Acepta prórroga
+
+No
+
+Solicitudes de contratación asignadas al proceso
+Número solicitud de contratación	Estado	Unidad Ejecutora	Rubro	Tipo de urgencia	Fecha creación
+40/19-340-SCO26	Autorizada en Proceso	40/019 - UOC RTA	ELEMENTOS DE LIMPIEZA	Normal	24/02/2026
+Detalle de productos o servicios
+Número renglón	Objeto del gasto	Código del ítem	Descripción	Cantidad	Acciones
+1	2.3.4	2.3.4-786.97	PAPEL HIGIENICO; PRESENTACION: ENVASE X 4 UN, TIPO: ROLLO, ANCHO: 10 Cm, LARGO: 80 M, TIPO DE HOJA: SIMPLE	400,00 UNIDAD	
+2	2.9.1	2.9.1-6951.30	LIMPIADORES; TIPO: LAVANDINA, PRESENTACION: ENVASE X 5 L	75,00 UNIDAD	
+3	2.9.1	2.9.1-646.23	BOLSAS DE RESIDUOS; ESPESOR: 30 Mn, PRESENTACION: BOLSA X 10, DIMENSION: 60 X 90 Cm, COLOR: OSCURO	35,00 UNIDAD	
+4	2.9.1	2.9.1-6951.4	LIMPIADORES; TIPO: LIMPIAVIDRIOS, PRESENTACION: ENVASE X 500 CM3	50,00 UNIDAD	
+5	2.9.1	2.9.1-544.65	DESODORANTES DE AMBIENTE; FORMATO: AEROSOL, FRAGANCIA: VAINILLA, PRESENTACION: ENVASE X 360 CM3, LIBRE DE CFC: SI	60,00 UNIDAD	
+6	2.9.1	2.9.1-714.12	FRANELAS; DIMENSION: 38 X 45 Cm, RECICLADO: NO	82,00 UNIDAD	
+7	2.9.1	2.9.1-6950.30	LUSTRADORES; TIPO: LUSTRAMUEBLES, PRESENTACION: AEROSOL X 360 CM3	95,00 UNIDAD	
+8	2.9.1	2.9.1-6961.7	ELEM. P/LIMPIEZA SANITARIOS; TIPO: PASTILLA DESODORANTE, PRESENTACION: CAJA X 12 UN	8,00 UNIDAD	
+9	2.9.1	2.9.1-678.3	TRAPOS REJILLA; COLOR: BLANCO, DIMENSION: 40 X 40 Cm, MATERIAL: PURO ALGODON	75,00 UNIDAD	
+10	2.9.1	2.9.1-683.5	SECADORES DE GOMA; LARGO: 40 Cm, COLOR: NEGRO	90,00 UNIDAD	
+11	2.9.1	2.9.1-713.25	TRAPOS DE PISO; DIMENSION: 45 X 58 Cm, RECICLADO: NO	180,00 UNIDAD	
+12	2.5.4	2.5.4-506.219	INSECTICIDAS; PRINCIPIO ACTIVO: CIPERMETRINA+PRALETRINA+TRANS, CONTROL: MOSCA, MOSQUITO Y ZANCUDO, ACCION: VOLTEO, PRESENTACION: ENVASE X 360 CM3	65,00 UNIDAD	
+13	2.9.1	2.9.1-6951.41	LIMPIADORES; TIPO: DESINFECTANTE P/PISO, PRESENTACION: ENVASE X 5 L	75,00 UNIDAD	
+14	2.9.1	2.9.1-6951.6	LIMPIADORES; TIPO: DETERGENTE, PRESENTACION: ENVASE X 750 CM3	95,00 UNIDAD	
+15	2.9.1	2.9.1-6951.320	LIMPIADORES; TIPO: SHAMPOO PARA LAVA AUTOS, PRESENTACION: ENVASE X 5 L, BIODEGRADABLE: SI	12,00 UNIDAD	
+16	2.9.1	2.9.1-646.75	BOLSAS DE RESIDUOS; DIMENSION: 90 X 120 Cm, PRESENTACION: UNIDAD UN, ESPESOR: 80 µm	55,00 UNIDAD	
+17	2.9.1	2.9.1-6952.32	CEPILLOS; TIPO: ESCOBILLON, MATERIAL: PVC	35,00 UNIDAD	
+18	2.9.1	2.9.1-6951.80	LIMPIADORES; TIPO: QUITASARRO, PRESENTACION: ENVASE X 500 CM3	25,00 UNIDAD	
+
+
+
+Cronograma
+Fecha y hora estimada de publicación en el portal
+
+26/02/2026 12:00 Hrs.
+
+Fecha y hora inicio de consultas
+
+27/02/2026 08:00 Hrs.
+
+Fecha y hora final de consultas
+
+04/03/2026 09:00 Hrs.
+
+Fecha y hora inicio recepción de documentos en soporte físico
+
+27/02/2026 09:00 Hrs.
+
+Fecha y hora fin recepción de documentos en soporte físico
+
+04/03/2026 09:00 Hrs.
+
+Fecha y hora acto de apertura
+
+04/03/2026 09:00 Hrs.
+
+Pliego de bases y condiciones generales
+Pliego de Bases y Condiciones Generales	Disposición aprobatoria	Fecha creación
+
+
+DI-2024-79130471-APN-ONC#JGM 
+
+	
+
+DI-2024-79130471-APN-ONC#JGM 
+
+	31/08/2024
+
+
+Requisitos mínimos de participación
+I. Requisitos económicos y financieros
+Nº de requisito	Descripción	Tipo de documento
+1	SEGUN PLIEGOS DE BASES Y CONDICIONES PARTICULARES SE DEBERA ADJUNTAR DECLARACION JURADA DE INTERESES DECRETO 202/17 #Oficina Anticorrupción DECLARACION JURADA DE ELEGIBILIDAD DECLARACION JURADA DE HABILIDAD PARA CONTRATAR	Requiere adjuntar documentación electrónica
+II. Requisitos técnicos
+Nº de requisito	Descripción	Tipo de documento
+1	SEGUN PLIEGOS DE BASES Y CONDICIONES PARTICULARES	
+III. Requisitos administrativos
+Nº de requisito	Descripción	Tipo de documento
+1	SEGUN PLIEGOS DE BASES Y CONDICIONES PARTICULARES	
+
+
+Cláusulas particulares
+Documento	Número GDE	Número especial	Fecha vinculación	Opciones
+Clausulas Particulares	PLIEG-2026-19989730-APN-IIIBAR#FAA		26/02/2026	
+
+
+Garantías
+Garantía de mantenimiento de oferta
+La garantía de mantenimiento de oferta debe ser del 5,00% sobre el monto total de la oferta
+
+Este proceso de compra No requiere incorporar garantía de mantenimiento de oferta para las ofertas menores a 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+Garantía de cumplimiento de contrato
+La garantía de cumplimiento de contrato debe ser del 10,00% del monto del contrato
+Este proceso de compra No requiere incorporar garantía de cumplimiento de contrato cuando el monto total del documento contractual no supere los 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+
+
+Este proceso de compra No requiere incorporar contragarantía.
+
+
+
+
+Información del contrato
+Fecha estimada del inicio del contrato
+
+A partir del perfeccionamiento del documento contractual
+
+Duración del contrato
+
+3 Meses
+
+Alcance
+Servicio Administrativo Financiero	Unidad Operativa de Contrataciones	Dirección	Teléfono
+381 - Estado Mayor General de La Fuerza Aérea	40/019 - UOC RTA	Ruta Nacional N° 11 KM 783	03482-438187/188/078
+Penalidades
+Nº penalidad	Descripción
+1	SEGUN PLIEGO DE BASES Y CONDICIONES PARTICULARES
+
+
+Anexos ingresados
+Nombre del Anexo	Tipo	Descripción	Acciones
+ANEXO - BENEF PAGO ENT BANCARIAS.doc	Administrativo	PROVEEDORES Y BENEFICIARIOS DE PAGO DEL ESTADO NACIONAL	
+ANEXO I.a - SOLICITUD ALTA DE ENTES.pdf	Administrativo	SOLICITUD ALTA DE ENTES	
+ANEXO IV - AUT DE ACRED PAGOS DEL TESORO NACIONAL.doc	Administrativo	AUTORIZACIÓN DE ACREDITACIÓN DE PAGOS DEL TESORO NACIONAL EN CUENTA BANCARIA	
+DDJJ DE HABILIDAD PARA CONTRATAR.pdf	Administrativo	DECLARACION JURADA DE HABILIDAD PARA CONTRATAR	
+DDJJ DE ELEGIBILIDAD.pdf	Administrativo	DECLARACION JURADA DE ELEGIBILIDAD	
+ANEXO_DDJJ INTER. (MODELO).pdf	Administrativo	DECLARACION JURADA DE INTERESES OFICINA ANTICORRUPCION	
+IF-2026-18947691-APN-IIIBAR#FAA.pdf	Técnico	ESPECIFICACIONES TECNICAS	
+
+
+Actos administrativos
+Documento	Número GDE	Número especial	Fecha vinculación	Opciones
+Autorización pliego	DI-2026-19990737-APN-IIIBAR#FAA	DI-2026-18-IIIBAR#FAA	26/02/2026	
+Autorización llamado	DI-2026-19990737-APN-IIIBAR#FAA	DI-2026-18-IIIBAR#FAA	26/02/2026	
+
+
+Volver
+Imprimir
+
+
+Secretaría Ejecutiva
+Oficina Nacional de Contrataciones
+Presidencia de la nación
+PRDFINMSAPPB09 v 1.1.906_COMPRAR
+Avisos sobre Navegadores
+Términos y Condiciones de Uso
+Preguntas Frecuentes
+  Envíenos por favor un ticket aquí

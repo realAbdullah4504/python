@@ -9,228 +9,285 @@ STATUS: Publicado
 
 FULL DETAIL PAGE
 ==================================================
+COMPR.AR - Portal de Compras Públicas de la República Argentina
+Toggle navigation
 Institucional
 Normativa
 Capacitación
+Proveedores
+Organismos
 Atención al usuario
 Material de apoyo
- Ingresar
-
-
+Ingresar
+×
+Bienvenido
+Verifique que el CUIT haya sido ingresado
+El número de identificación que ingrese debe ser el personal. No el del organismo o empresa.
+Siguiente
+×
+Recuperar contraseña
+Importante:
+El correo electrónico debe ser el mismo que ingresó al sistema al momento de registrarse como usuario.
+Verifique que el correo electrónico haya sido ingresado.
+Solicitar
 Proceso de compra
-
-
 Número de proceso
-
 74/6-0026-LPR26
-
 Número de expediente
-
-EX-2026-14026837-   -APN-PNC#APNAC
-
+EX-2026-14026837-  &nbsp-APN-PNC#APNAC
 Nombre descriptivo del proceso
-
 CONTRATACIÓN DEL SERVICIO DE LIMPIEZA DE LAS INSTALACIONES DEL P.N. CALILEGUA
-
 Unidad Operativa de Contrataciones
-
 74/6 - Parque Nacional Calilegua
-
-
-
 Información básica del proceso
 Nº de proceso
-
 74/6-0026-LPR26
-
 Nombre descriptivo de proceso
-
 CONTRATACIÓN DEL SERVICIO DE LIMPIEZA DE LAS INSTALACIONES DEL P.N. CALILEGUA
-
 Objeto de la contratación
-
 CONTRATACIÓN DEL SERVICIO DE LIMPIEZA DE LAS INSTALACIONES DEL P.N. CALILEGUA
-
 Procedimiento de selección
-
 Licitacion Privada
-
 Etapa
-
 Única
-
 Modalidad
-
 Sin modalidad
-
 Alcance
-
 Nacional
-
 Moneda
-
 Peso Argentino
-
 Encuadre legal
-
 Decreto Delegado N° 1023/2001 Art. 25
 Decreto N°1030/2016 Art.12
-
-
 Tipo de cotización
-
 No admite cotización parcial por renglón
 Podrán cotizar, uno, varios o todos los renglones
-
 Tipo de adjudicación
-
 Cada renglón se adjudicará en forma total
 Adjudicación por renglón
-
 Tipo documento que genera el proceso
-
 Orden de compra
-
 Lugar de recepción de documentación física
-
 Marinero A. Lopez S/N, Calilegua, Jujuy
-
 Plazo mantenimiento de la oferta
-
 60 Días corridos Acto de apertura
-
 Requiere pago
-
 No
-
 Otras condiciones
-
-
-
-
 Genera Recursos
-
 No
-
-
 Financiamiento Externo
-
 No
-
-
 Acepta prórroga
-
 Sí
-
 Solicitudes de contratación asignadas al proceso
-Número solicitud de contratación	Estado	Unidad Ejecutora	Rubro	Tipo de urgencia	Fecha creación
-74/6-34-SCO26	Autorizada en Proceso	74/6 - Parque Nacional Calilegua	MANT. REPARACION Y LIMPIEZA	Normal	09/02/2026
+Número solicitud de contratación
+Estado
+Unidad Ejecutora
+Rubro
+Tipo de urgencia
+Fecha creación
+74/6-34-SCO26
+Autorizada en Proceso
+74/6 - Parque Nacional Calilegua
+MANT. REPARACION Y LIMPIEZA
+Normal
+09/02/2026
 Detalle de productos o servicios
-Número renglón	Objeto del gasto	Código del ítem	Descripción	Cantidad	Acciones
-1	3.3.5	3.3.5-1688.1	LIMPIEZA DE EDIFICIOS; LIMPIEZA DE EDIFICIOS	10,00 SERVICIO	
-
-
-
+Número renglón
+Objeto del gasto
+Código del ítem
+Descripción
+Cantidad
+Acciones
+1
+3.3.5
+3.3.5-1688.1
+LIMPIEZA DE EDIFICIOS; LIMPIEZA DE EDIFICIOS
+10,00 SERVICIO
+×
+Información del Ítem
+Observaciones
+Especificaciones
+Acondicionamiento
+Item Agrupado
+Detalle Entrega
 Cronograma
 Fecha y hora estimada de publicación en el portal
-
 23/02/2026 12:00 Hrs.
-
 Fecha y hora inicio de consultas
-
 23/02/2026 12:30 Hrs.
-
 Fecha y hora final de consultas
-
 04/03/2026 09:00 Hrs.
-
 Cantidad de días a publicar
-
 Fecha y hora acto de apertura
-
 04/03/2026 09:30 Hrs.
-
 Pliego de bases y condiciones generales
-Pliego de Bases y Condiciones Generales	Disposición aprobatoria	Fecha creación
-
-
-DI-2024-79130471-APN-ONC#JGM 
-
-	
-
-DI-2024-79130471-APN-ONC#JGM 
-
-	31/08/2024
-
-
+Pliego de Bases y Condiciones Generales
+Disposición aprobatoria
+Fecha creación
+DI-2024-79130471-APN-ONC#JGM
+DI-2024-79130471-APN-ONC#JGM
+31/08/2024
 Requisitos mínimos de participación
 I. Requisitos económicos y financieros
-Nº de requisito	Descripción	Tipo de documento
-1	SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES	
+Nº de requisito
+Descripción
+Tipo de documento
+1
+SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES
 II. Requisitos técnicos
-Nº de requisito	Descripción	Tipo de documento
-1	SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES	
+Nº de requisito
+Descripción
+Tipo de documento
+1
+SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES
 III. Requisitos administrativos
-Nº de requisito	Descripción	Tipo de documento
-1	SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES	
-
-
+Nº de requisito
+Descripción
+Tipo de documento
+1
+SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES
 Cláusulas particulares
-Documento	Número GDE	Número especial	Fecha vinculación	Opciones
-Clausulas Particulares	PLIEG-2026-14042945-APN-PNC#APNAC		09/02/2026	
-
-
+Documento
+Número GDE
+Número especial
+Fecha vinculación
+Opciones
+Clausulas Particulares
+PLIEG-2026-14042945-APN-PNC#APNAC
+09/02/2026
 Garantías
 Garantía de impugnación a la evaluación
 La garantía de impugnación a la evaluación deber ser del tres por ciento (3%) del monto de la oferta del renglón o los renglones en cuyo favor se hubiere aconsejado adjudicar el contrato.
 Garantía de mantenimiento de oferta
 La garantía de mantenimiento de oferta debe ser del 5,00% sobre el monto total de la oferta
-
-Este proceso de compra No requiere incorporar garantía de mantenimiento de oferta para las ofertas menores a 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+Este proceso de compra
+No requiere
+incorporar garantía de mantenimiento de oferta para las ofertas menores a 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+En el caso de aceptar más de una oferta por proveedor, la garantía se calcula sobre el mayor valor propuesto. En caso de resultar adjudicatario esta garantía se prolongará hasta la constitución de la garantía de cumplimiento del contrato.
 Garantía de cumplimiento de contrato
 La garantía de cumplimiento de contrato debe ser del 10,00% del monto del contrato
-Este proceso de compra No requiere incorporar garantía de cumplimiento de contrato cuando el monto total del documento contractual no supere los 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
-
-
-Este proceso de compra No requiere incorporar contragarantía.
-
-
-
-
+Este proceso de compra
+No requiere
+incorporar garantía de cumplimiento de contrato cuando el monto total del documento contractual no supere los 1000 módulos y para aquellas excepciones enumeradas en la normativa vigente.
+Este proceso de compra
+No requiere
+incorporar contragarantía.
 Información del contrato
 Fecha estimada del inicio del contrato
-
 A partir del perfeccionamiento del documento contractual
-
 Duración del contrato
-
 10 Meses
-
 Penalidades
-Nº penalidad	Descripción
-1	SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES
-
-
+Nº penalidad
+Descripción
+1
+SEGÚN PLIEGOS DE BASES Y CONDICIONES GENERALES Y PARTICULARES
 Anexos ingresados
-Nombre del Anexo	Tipo	Descripción	Acciones
-PLIEGO LIMPIEZA 2026.doc	Técnico	PROYECTO DE PLIEGO	
-
-
+Nombre del Anexo
+Tipo
+Descripción
+Acciones
+PLIEGO LIMPIEZA 2026.doc
+Técnico
+PROYECTO DE PLIEGO
 Actos administrativos
-Documento	Número GDE	Número especial	Fecha vinculación	Opciones
-Autorización pliego	DI-2026-15557235-APN-PNC#APNAC	DI-2026-8-PNC#APNAC	23/02/2026	
-Autorización llamado	DI-2026-15557235-APN-PNC#APNAC	DI-2026-8-PNC#APNAC	23/02/2026	
-
-
+Documento
+Número GDE
+Número especial
+Fecha vinculación
+Opciones
+Autorización pliego
+DI-2026-15557235-APN-PNC#APNAC
+DI-2026-8-PNC#APNAC
+23/02/2026
+Autorización llamado
+DI-2026-15557235-APN-PNC#APNAC
+DI-2026-8-PNC#APNAC
+23/02/2026
 Volver
 Imprimir
-
-
+Dictamen de evaluación de ofertas
+Dictamen de preselección
+Certificado de oferta
+Vista Previa Item
 Secretaría Ejecutiva
 Oficina Nacional de Contrataciones
 Presidencia de la nación
-PRDFINMSAPPB09 v 1.1.906_COMPRAR
+PRDFINMSAPPB07
+v 1.1.906_COMPRAR
 Avisos sobre Navegadores
 Términos y Condiciones de Uso
 Preguntas Frecuentes
-  Envíenos por favor un ticket aquí
+Envíenos por favor un ticket
+aquí
+×
+Aviso sobre Navegadores
+Para brindar la mejor calidad y velocidad de navegación nuestro sitio está desarrollado en función de las últimas versiones de los navegadores:
+×
+DI-2016-29-E-APN-ONC#MM – ANEXO II
+POLÍTICAS, TÉRMINOS Y CONDICIONES DE USO DEL SISTEMA (PTCUS) COMUNES A TODOS LOS USUARIOS
+Artículo 1°.- Encuadre Jurídico
+El acceso y/o uso al Sistema Electrónico de Contrataciones de la Administración Nacional denominado COMPR.AR., se efectúa en el marco de lo normado por los artículos 21 y 22 del Decreto Delegado Nº 1023/01, el artículo 33 del reglamento del Régimen de Contrataciones de la Administración Nacional aprobado por el Decreto Nº 893/12, las Políticas, Términos y Condiciones de Uso del Sistema y las Condiciones Particulares que en el futuro puedan complementarlas, sustituirlas o modificarlas.
+Artículo 2°.- Aceptación
+Desde el momento de acceso y/o uso del COMPR.AR, se considera que el usuario acepta plenamente y sin reserva alguna, las Políticas, Términos y Condiciones así como las Condiciones Particulares de uso del sistema que pudieran dictarse, adhiriendo en forma inmediata a todas y cada de una ellas.
+Artículo 3°.- Acceso
+El acceso a COMPR.AR es público y gratuito, y se realiza a través de Internet, en el sitio cuya página principal se encuentra ubicada en
+https://comprar.gob.ar
+o aquella que en un futuro la reemplace. El Usuario deberá contar con un equipo y programas informáticos que cumplan con los requisitos mínimos de compatibilidad con el sistema (acceso por internet; navegadores Internet Explorer; Mozilla Firefox o Google Chrome). El Usuario toma conocimiento que cuando su equipo o programas de computación no reúnan tales requisitos mínimos, no podrá tener acceso al sistema y/o se podrá bloquear su acceso.
+Artículo 4°.- Términos
+A los efectos de las presentes Políticas, Términos y Condiciones, se entenderá que:
+COMPR.AR
+Constituye el Sistema Electrónico de Contrataciones de la Administración Nacional a través del cual las jurisdicciones y entidades de la Administración Pública Nacional comprendidas en el artículo 2º del Decreto Delegado Nº 1023/01 y sus modificaciones efectuarán en forma electrónica todos los procedimientos prescriptos en el Reglamento del Régimen de Contrataciones de la Administración Nacional, aprobado por el Decreto Nº 893/12 y sus modificaciones.
+https://comprar.gob.ar
+Es el portal sobre el que se gestiona el COMPR.AR y a través del cual se difunden las convocatorias y las restantes etapas de los procedimientos de selección. El acceso a este portal es público y gratuito.
+Asimismo, es medio válido de todas las notificaciones entre la jurisdicción o entidad contratante y los interesados, oferentes, adjudicatarios o cocontratantes que deban realizarse durante los procedimientos de selección.
+USUARIOS DEL PROVEEDOR:
+Es la persona humana que utiliza el COMPR.AR en representación de la persona humana o jurídica inscripta en el Sistema de Información de Proveedores que administra la OFICINA NACIONAL DE CONTRATACIONES, conforme el procedimiento de autenticación de los usuarios de los proveedores obrante en el Anexo III de la presente medida.
+USUARIOS COMPRADORES:
+Es la persona humana designada por la Unidad Operativa de Contrataciones, en adelante UOC, como responsable de la utilización del COMPR.AR, de acuerdo a los roles otorgados conforme al procedimiento de Administradores de Perfiles y Usuarios de la Administración obrante en los Anexos IV y V.
+SISTEMA DE INFORMACION DE PROVEEDORES:
+El Sistema de Información de Proveedores (SIPRO) que administra la OFICINA NACIONAL DE CONTRATACIONES se incorpora también al sistema COMPR.AR. Este sistema tiene por objeto registrar información relativa a los proveedores, sus antecedentes, historial de procedimientos de selección en los que se hubieren presentado como oferentes, historial de contratos, órdenes de compra o venta, incumplimientos contractuales y extra-contractuales, en ambos casos por causas imputables al proveedor, sanciones de apercibimiento, suspensión e inhabilitación y toda otra información que la OFICINA NACIONAL DE CONTRATACIONES considere de utilidad.
+PROTECCIÓN DE LA INFORMACIÓN CONTENIDA EN EL PORTAL:
+Toda la información elaborada o disponible en, o a través del COMPR.AR, se encuentra protegida como propiedad intelectual. Está prohibido a todos los usuarios modificar, copiar, transmitir, vender, distribuir, exhibir, publicar, licenciar, crear trabajos derivados, o usar, en general, el contenido disponible en o a través del COMPR.AR para fines comerciales y otros.
+USO ADECUADO DE COMPR.AR:
+El usuario que ingresa al COMPR.AR, se compromete a utilizar el mismo en forma lícita y de acuerdo a las presentes PTCUS. Se encuentra prohibido a los usuarios, la realización de actos maliciosos o que atenten contra el sitio, o que de alguna manera puedan dañar, inutilizar, sobrecargar, deteriorar, impedir o limitar la utilización de todas o algunas de las funcionalidades del mismo.
+RESPONSABILIDAD POR CLAVES DE USUARIO:
+Los usuarios de COMPR.AR no pueden ceder, transferir o comunicar bajo ninguna circunstancia sus claves y nombres de usuarios, haciéndose plenamente responsables por los actos, documentos, anexos, ofertas, y demás antecedentes que bajo esas claves y nombres de usuario, ingresen al COMPR.AR. Además, los usuarios asumen la obligación de cambiar sus claves frecuentemente, las que se debe evitar que sean evidentes y/o simples.
+RESPONSABILIDAD:
+El Gobierno Nacional no se responsabiliza por los daños y/o perjuicios derivados del acceso y/o uso de los contenidos publicados en el sitio
+https://comprar.gob.ar
+o en el que en un futuro lo reemplace.
+El Gobierno Nacional no se responsabiliza por las interrupciones de este servicio, ni por cualquier inconveniente originado en causas ajenas que impidan el acceso.
+La veracidad e integridad de la totalidad de la información y contenido de los documentos publicados son de exclusiva responsabilidad de los usuarios que los publican y envían, de acuerdo a las claves de acceso bajo las cuales actúen.
+El Gobierno Nacional no es responsable por la interrupción en la recepción de correos electrónicos por parte del usuario-proveedor.
+El Gobierno Nacional no es responsable de los virus que puedan contener los documentos que adjuntan los usuarios del sitio. Es responsabilidad de cada usuario velar por que los archivos que sube al sitio no tengan virus de ninguna especie.
+Las estadísticas e informes disponibles en el COMPR.AR son meramente referenciales y no comprometen a la OFICINA NACIONAL DE CONTRATACIONES, ni al Gobierno Nacional.
+SUSPENSIÓN O ELIMINACIÓN DE USUARIOS:
+La OFICINA NACIONAL DE CONTRATACIONES se reserva el derecho de suspender y/o eliminar unilateral y automáticamente del COMPR.AR a los usuarios que incumplan las PTCUS.
+CENTRO DE CONTACTO. MESA DE AYUDA TELEFÓNICA:
+La OFICINA NACIONAL DE CONTRATACIONES establecerá para todos los usuarios del COMPR.AR un centro de contacto que contará con una mesa de ayuda telefónica y vía correo electrónico. Esta mesa de ayuda atenderá las consultas de los usuarios sobre el funcionamiento del COMPR.AR.
+Artículo 5°.- Usuarios de los proveedores
+CORREOS ELECTRÓNICOS ENVIADOS POR COMPR.AR. A PROVEEDORES:
+Los usuarios proveedores aceptan recibir permanentemente correos electrónicos relativos a procedimientos de selección y demás información relevante, a la dirección de correo informada por ellos en el SIPRO.
+El sitio
+https://comprar.gob.ar
+o el que en un futuro lo reemplace es el medio obligatorio de difusión de las convocatorias y de las restantes etapas de los procedimientos de selección, sin perjuicio de las demás formas de difusión y publicidad que la reglamentación vigente determina.
+Los correos electrónicos enviados por el COMPR.AR solo constituyen un medio de aviso.
+Se recomienda a los proveedores, revisar periódicamente el COMPR.AR –en particular Escritorio del Proveedor– para informarse de las novedades vinculadas a las etapas, desarrollo del proceso de contratación electrónica y demás información relevante, como así también consultar las demás formas de difusión y publicidad que la reglamentación vigente determina.
+LIBERACIÓN DE RESPONSABILIDAD:
+Los usuarios proveedores deben velar por la seriedad de las ofertas ingresadas al COMPR.AR, siendo plenamente responsables por las mismas.
+Los usuarios proveedores deberán aceptar que el Gobierno Nacional carece de toda responsabilidad por los resultados que obtengan en cada uno de los procedimientos de selección electrónicos en que participen.
+Los usuarios proveedores liberan al Gobierno Nacional de cualquier responsabilidad derivada de la dilación o no envío oportuno de correos electrónicos de alerta, declarando conocer que el medio de notificación es la difusión que cada Usuario Comprador efectúa en el portal
+https://comprar.gob.ar
+o en el que en un futuro lo reemplace. La no recepción oportuna de correos electrónicos de alerta que envía el COMPR.AR, no justificará, ni se considerará como causal suficiente para eximir a los proponentes de sus cargas y responsabilidades.
+POLÍTICAS DE PRIVACIDAD:
+Los usuarios de COMPR.AR aceptan, por el sólo hecho de su inscripción o registro en el sitio, que los datos, antecedentes e información aportados en las diversas etapas de los procedimientos en que participan, sean de público conocimiento en el ámbito de las transacciones que se efectúan en él y que sólo están disponibles públicamente para esos efectos. Asimismo, los usuarios de COMPR.AR, por el sólo hecho de su inscripción otorgan su conformidad para que los resultados de los procedimientos de selección en que participen y las respectivas contrataciones, formen parte de las estadísticas e informes, se procesen y se publiquen por parte del Gobierno Nacional.
+Cuando se solicite por parte de terceros acceso a información que pudiese afectar derechos de los usuarios proveedores, tales como los relacionados con su vida privada o derechos de carácter económico o comercial, se procederá en un todo conforme a la Ley Nº 25.326 de “Protección de Datos Personales” modificada por la Ley Nº 26.343 y reglamentada por el Decreto Nº 1558/2001 modificado por el Decreto 1160/2010, el Decreto Nº 1172/2003 de “Acceso a la Información Pública” y el Decreto N° 117/2016 “Plan de Apertura de Datos”.
+DECLARACIÓN:
+Los usuarios de COMPR.AR declaran conocer y aceptar la circunstancia relativa a que la OFICINA NACIONAL DE CONTRATACIONES, puede en cualquier momento modificar todo o parte de las presentes PTCUS, que serán oportunamente publicadas en el portal de COMPR.AR.
+USUARIOS COMPRADORES:
+El usuario-comprador es responsable de la información que se difunda y debe procurar que su contenido se adapte a las previsiones contempladas por la normativa vigente. Queda estrictamente prohibido a los usuarios compradores realizar cualquier uso de COMPR.AR ajeno al marco del proceso de contrataciones públicas electrónicas. Los Organismos de Control están autorizados a utilizar el COMPR.AR con el objeto de asegurar el correcto desempeño de los distintos procesos y velar por su transparencia.
+LÍMITE DE RESPONSABILIDAD DEL COMPR.AR SOBRE EL PROCESO DE SELECCION:
+El COMPR.AR es un medio que facilita la realización de los procedimientos de selección sin garantizar la seriedad e idoneidad de las ofertas recibidas, las que deben ser evaluadas por cada usuario comprador, y en su caso, por la Comisión Evaluadora de Ofertas.

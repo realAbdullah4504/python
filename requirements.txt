@@ -3,3 +3,5 @@ asyncio
 requests==2.31.0
 beautifulsoup4==4.12.2
 lxml==4.9.3
+langdetect==1.0.9
+charset-normalizer==3.3.2

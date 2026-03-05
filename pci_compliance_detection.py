@@ -6,7 +6,7 @@ Implements PCI DSS and payment card compliance detection with high accuracy
 import re
 import unicodedata
 from typing import Dict, List, Tuple, Set
-from keywords_pci_dss_americas import PCI_COMPLIANCE_SIGNALS
+from keywords_pci_dss_americas import PCI_COMPLIANCE_SIGNALS, SCORING_CONFIG
 
 
 def normalize_text(text):
@@ -26,6 +26,8 @@ class PCIComplianceDetector:
     def __init__(self):
         self.primary_pci_signals = PCI_COMPLIANCE_SIGNALS["primary"]
         self.secondary_pci_signals = PCI_COMPLIANCE_SIGNALS["secondary"]
+        self.scoring_config = SCORING_CONFIG["pci"]
+        self.thresholds = SCORING_CONFIG["thresholds"]
         
         # Compile regex patterns for efficiency
         self._compile_patterns()
@@ -131,31 +133,35 @@ class PCIComplianceDetector:
         primary_results = self.detect_primary_signals(text)
         secondary_results = self.detect_secondary_signals(text)
         
-        # Scoring weights
-        primary_weight = 3.0
-        secondary_weight = 1.0
-        version_weight = 1.5
+        # Calculate scores based on configuration
+        primary_score = len(primary_results["signals"]) * self.scoring_config["primary_pci"]
         
-        primary_score = len(primary_results["signals"]) * primary_weight
-        secondary_score = len(secondary_results["signals"]) * secondary_weight
+        # Count version 4 references
+        version_4_count = 0
+        payment_card_terms_count = 0
         
-        # Bonus for version detection
-        version_bonus = 0
-        for signal, _ in secondary_results["positions"]:
+        for signal in secondary_results["signals"]:
             if any(version in signal.lower() for version in ["4.0", "v4", "4.0.1"]):
-                version_bonus += version_weight
+                version_4_count += 1
+            else:
+                payment_card_terms_count += 1
         
-        total_score = primary_score + secondary_score + version_bonus
+        version_score = version_4_count * self.scoring_config["version_4"]
+        payment_card_score = payment_card_terms_count * self.scoring_config["payment_card_terms"]
+        
+        total_score = primary_score + version_score + payment_card_score
         
         return {
             "total_score": total_score,
             "primary_score": primary_score,
-            "secondary_score": secondary_score,
-            "version_bonus": version_bonus,
+            "version_score": version_score,
+            "payment_card_score": payment_card_score,
             "primary_signals": primary_results["signals"],
             "secondary_signals": secondary_results["signals"],
             "has_primary_pci": len(primary_results["signals"]) > 0,
-            "has_secondary_pci": len(secondary_results["signals"]) > 0
+            "has_secondary_pci": len(secondary_results["signals"]) > 0,
+            "meets_threshold": total_score >= self.thresholds["min_pci_score"],
+            "threshold_met": self.thresholds["min_pci_score"]
         }
     
     def validate_detection_accuracy(self, test_cases: List[Dict]) -> Dict[str, float]:
@@ -227,9 +233,12 @@ def main():
         
         print(f"  Primary signals: {score['primary_signals']}")
         print(f"  Secondary signals: {score['secondary_signals']}")
-        print(f"  Total PCI score: {score['total_score']:.2f}")
-        print(f"  Has primary PCI: {score['has_primary_pci']}")
-        print(f"  Has secondary PCI: {score['has_secondary_pci']}")
+        print(f"  Total PCI score: {score['total_score']:.2f} (Threshold: {score['threshold_met']})")
+        print(f"  Meets threshold: {'✅ YES' if score['meets_threshold'] else '❌ NO'}")
+        print("  Score breakdown:")
+        print("    • Primary PCI: {:.1f}".format(score['primary_score']))
+        print("    • Version 4: {:.1f}".format(score['version_score']))
+        print("    • Payment card terms: {:.1f}".format(score['payment_card_score']))
 
 
 if __name__ == "__main__":

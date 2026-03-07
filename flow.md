@@ -20,4 +20,4 @@ For each page visited:
    ▼                      ▼
 Tender Detail Page       Listing Page
 - Compute scores         - Extract links
-- Store tender           - Queue links
+- Store tender           - Queue links16

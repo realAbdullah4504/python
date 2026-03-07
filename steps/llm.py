@@ -5,14 +5,34 @@ llm = OllamaLLM(model="mistral", temperature=0)
 
 prompt = PromptTemplate.from_template(
 """
-Classify the text as:
-Tender
-Not Tender
+You are a procurement classifier.
 
-Return ONLY the answer.
+Tender means:
+- government procurement
+- bids
+- request for proposal (RFP)
+- request for quotation (RFQ)
+- contract bidding
 
-Text:
-{text}
+Examples:
+
+Text: Government invites bids for supply of equipment
+Answer: Tender
+
+Text: Request for proposal for building construction
+Answer: Tender
+
+Text: Our company launched a new mobile app
+Answer: Not Tender
+
+Text: Learn Python programming tutorial
+Answer: Not Tender
+
+Now classify:
+
+Text: {text}
+
+Answer:
 """
 )
 

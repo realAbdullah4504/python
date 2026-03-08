@@ -2,11 +2,10 @@ from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import re
 
-URL = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
+URL = "https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs="
 
 
-TABLE_ID = "ctl00_CPH1_GridListaPliegosAperturaProxima"
-
+# TABLE_ID = "ctl00_CPH1_GridListaPliegosAperturaProxima"
 
 def simulate_postback(page, target, argument):
     print(f"Executing postback: target={target}, argument={argument}")
@@ -16,9 +15,6 @@ def simulate_postback(page, target, argument):
     
     # Wait for navigation to complete
     page.wait_for_load_state("load")
-    
-    # Additional wait for dynamic content
-    page.wait_for_selector(f"#{TABLE_ID}", timeout=10000)
     
     import time
     time.sleep(1)
@@ -40,7 +36,7 @@ def extract_postback_target(link):
 
 def extract_pagination_links(soup):
 
-    table = soup.find("table", {"id": TABLE_ID})
+    table = soup.find("table")
     if not table:
         return []
 
@@ -65,7 +61,7 @@ def extract_listing_rows(soup):
 
     tenders = []
 
-    table = soup.find("table", {"id": TABLE_ID})
+    table = soup.find("table")
     if not table:
         return tenders
 
@@ -116,30 +112,59 @@ def crawl_all_tenders(url):
         tenders = extract_listing_rows(soup)
         all_tenders.extend(tenders)
 
-        pagination_links = extract_pagination_links(soup)
+        current_page = 1
 
-        visited_pages = set()
+        while True:
+            pagination_links = extract_pagination_links(soup)
+            # print(f"Found {len(pagination_links)} pagination links on page {current_page}")
+            # for link in pagination_links:
+            #     print(f"  Page: '{link['page_no']}' -> {link['argument']}")
 
-        for p_link in pagination_links:
+            next_page_str = str(current_page + 1)
+            next_link = None
 
-            page_no = p_link["page_no"]
+            for link in pagination_links:
+                if link["page_no"] == next_page_str:
+                    next_link = link
+                    break
 
-            if page_no in visited_pages:
-                continue
+            if not next_link:
+                for link in pagination_links:
+                    if link["page_no"] == "...":
+                        match = re.search(r'Page\$(\d+)', link["argument"], re.IGNORECASE)
+                        if match:
+                            arg_page = int(match.group(1))
+                            if arg_page > current_page: # Ensure we are moving forward
+                                next_link = link
+                                break
 
-            visited_pages.add(page_no)
+            if not next_link:
+                print("No more pages found after page", current_page)
+                break
 
-            print("Crawling page:", page_no)
+            if next_link["page_no"] == "...":
+                match = re.search(r'Page\$(\d+)', next_link["argument"], re.IGNORECASE)
+                print(match.group(1))
+                if match:
+                    current_page = int(match.group(1))
+            else:
+                current_page += 1
+
+            print("Crawling page:", current_page)
 
             html = simulate_postback(
                 page,
-                p_link["target"],
-                p_link["argument"]
+                next_link["target"],
+                next_link["argument"]
             )
 
             soup = BeautifulSoup(html, "html.parser")
 
             tenders = extract_listing_rows(soup)
+            
+            if not tenders:
+                break
+                
             all_tenders.extend(tenders)
 
         browser.close()
@@ -153,5 +178,5 @@ if __name__ == "__main__":
 
     print("Total tenders:", len(tenders))
 
-    for t in tenders:
-        print(t)
+    # for t in tenders:
+    #     print(t)

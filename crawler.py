@@ -1,3 +1,4 @@
+from ast import arguments
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import re
@@ -26,7 +27,7 @@ def simulate_postback(page, target, argument):
 
 def extract_postback_target(link):
     href = link.get("href", "")
-    match = re.search(r"__doPostBack\('([^']+)','([^']+)'\)", href)
+    match = re.search(r"__doPostBack\('([^']+)','([^']*)'\)", href)
 
     if match:
         return match.group(1), match.group(2)
@@ -65,7 +66,11 @@ def extract_listing_rows(soup):
     if not table:
         return tenders
 
-    rows = table.find_all("tr")
+    tbody = table.find("tbody")
+    if not tbody:
+        return tenders
+
+    rows = tbody.find_all("tr", recursive=False)
 
     for row in rows:
 
@@ -80,14 +85,17 @@ def extract_listing_rows(soup):
         if len(cells) < 5:
             continue
 
+        link = cells[0].find("a")
+        target, _ = extract_postback_target(link) if link else (None, None)
+        # print(link, target)
         tender = {
             "number": cells[0].get_text(strip=True),
             "description": cells[1].get_text(strip=True),
             "type": cells[2].get_text(strip=True),
             "date": cells[3].get_text(strip=True),
-            "status": cells[4].get_text(strip=True)
+            "status": cells[4].get_text(strip=True),
+            "details_url": target 
         }
-
         tenders.append(tender)
 
     return tenders
@@ -144,7 +152,6 @@ def crawl_all_tenders(url):
 
             if next_link["page_no"] == "...":
                 match = re.search(r'Page\$(\d+)', next_link["argument"], re.IGNORECASE)
-                print(match.group(1))
                 if match:
                     current_page = int(match.group(1))
             else:
@@ -175,8 +182,9 @@ def crawl_all_tenders(url):
 if __name__ == "__main__":
 
     tenders = crawl_all_tenders(URL)
+    
 
     print("Total tenders:", len(tenders))
 
-    # for t in tenders:
-    #     print(t)
+    for t in tenders[:5]:
+        print(t)

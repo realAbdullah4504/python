@@ -3,39 +3,45 @@ from bs4 import BeautifulSoup
 import re
 import json
 
-KEYWORDS = [
-    "licitación",
-    "licitacion",
-    "concurso",
-    "convocatoria",
-    "adquisición",
-]
 
 def simulate_postback(page, target, argument=""):
     print(f"Executing postback: target={target}, argument={argument}")
     
+    # Wait a bit to ensure page is fully loaded
+    page.wait_for_load_state("networkidle")
+    
+    # Check if __doPostBack function exists before calling it
+    has_postback = page.evaluate("() => typeof __doPostBack !== 'undefined'")
+    
+    if not has_postback:
+        print("__doPostBack function not found, reloading page...")
+        page.reload()
+        page.wait_for_load_state("networkidle")
+        
+        # Check again after reload
+        has_postback = page.evaluate("() => typeof __doPostBack !== 'undefined'")
+        if not has_postback:
+            raise RuntimeError("__doPostBack function still not available after reload")
+    
     # Execute the postback
-    page.evaluate(f"__doPostBack('{target}','{argument}')")
+    try:
+        page.evaluate(f"__doPostBack('{target}','{argument}')")
+    except Exception as e:
+        print(f"Error executing postback: {e}")
+        # Try to reload and retry once
+        page.reload()
+        page.wait_for_load_state("networkidle")
+        page.evaluate(f"__doPostBack('{target}','{argument}')")
     
     # Wait for navigation to complete
     page.wait_for_load_state("networkidle")
     
     import time
-    time.sleep(1)
+    time.sleep(2)  # Increased wait time
     
     html = page.content()
     print(f"Got HTML content, length: {len(html)}")
     return html
-
-def score_keywords(text):
-
-    score = 0
-
-    for word in KEYWORDS:
-        if word in text:
-            score += 1
-
-    return score
 
 def crawl_details(page, listing_tenders):
 
@@ -55,20 +61,27 @@ def crawl_details(page, listing_tenders):
 
             print("Text:", text)
 
-            score = score_keywords(text)
-
             enriched = {
                 **tender,
-                "keyword_score": score
+                "full_text": text
             }
 
             results.append(enriched)
 
             print("Processed:", tender["number"])
 
-            # Go back to listing page
-            page.go_back()
-            page.wait_for_load_state("networkidle")
+            # Go back to listing page with better error handling
+            try:
+                page.go_back()
+                page.wait_for_load_state("networkidle")
+                # Additional wait to ensure page is fully loaded
+                import time
+                time.sleep(1)
+            except Exception as nav_error:
+                print(f"Navigation back failed for {tender['number']}: {nav_error}")
+                # Try to navigate to the original URL if go_back fails
+                page.goto(source_url)
+                page.wait_for_load_state("networkidle")
 
         except Exception as e:
             print("Failed:", tender["number"], e)
@@ -132,7 +145,7 @@ if __name__ == "__main__":
             # Save enriched tenders with source URL
             save_enriched_tenders(enriched_tenders, source_url)
             
-            print(f"Processed {len(enriched_tenders)} tenders with keyword scores")
+            print(f"Processed {len(enriched_tenders)} tenders with full text")
             
             browser.close()
     else:

@@ -1,59 +1,126 @@
+# analyze_tender_enrichment.py
 import json
 import unicodedata
 import re
-from keywords_pci_dss_americas import STRONG_PROCUREMENT_TRIGGERS, SCORING_CONFIG
+from keywords_pci_dss_americas import (
+    STRONG_PROCUREMENT_TRIGGERS,
+    STRUCTURAL_PROCUREMENT_MARKERS,
+    SCORING_CONFIG
+)
 
-# Normalize text: remove accents, lowercase
-def normalize_text(text):
-    """Remove accents and normalize text for matching"""
+# ------------------------------
+# Text Utilities
+# ------------------------------
+def normalize_text(text: str) -> str:
+    """Lowercase and remove accents for consistent matching."""
     text = text.lower()
     text = unicodedata.normalize("NFD", text)
-    text = "".join(c for c in text if unicodedata.category(c) != "Mn")
-    return text
+    return "".join(c for c in text if unicodedata.category(c) != "Mn")
 
-def score_tender_text(text, keywords_dict, scoring_config):
-    """
-    Score the tender text with full keyword matching (no substring).
-    - Normalize accents
-    - Case-insensitive
-    - Each keyword counts only once
-    """
+
+def match_keywords(text: str, keywords_dict: dict) -> list:
+    """Return a list of matched keywords/phrases."""
     norm_text = normalize_text(text)
-    matched_keywords = set()
-    
+    matched = set()
     for lang, keywords in keywords_dict.items():
         for keyword in keywords:
             norm_keyword = normalize_text(keyword)
-            # Custom word boundary for Unicode + punctuation
             pattern = r'(?<!\w)' + re.escape(norm_keyword) + r'(?!\w)'
             if re.search(pattern, norm_text):
-                matched_keywords.add(keyword)  # keep original for reporting
-    
-    # Scoring logic: 4 points if at least one trigger found, +2 points if more than one found
-    if len(matched_keywords) > 0:
-        if len(matched_keywords) == 1:
-            score = scoring_config["procurement"]["strong_trigger"]  # 4 points for one trigger
-        else:
-            score = scoring_config["procurement"]["strong_trigger"] + scoring_config["procurement"]["additional_procurement"]  # 4 + 2 = 6 points for multiple triggers
-    else:
+                matched.add(keyword)  # keep original keyword
+    return list(matched)
+
+
+# ------------------------------
+# Scoring Functions
+# ------------------------------
+def score_strong_triggers(text: str) -> (int, list):
+    """Score strong procurement triggers."""
+    matched_keywords = match_keywords(text, STRONG_PROCUREMENT_TRIGGERS)
+    if not matched_keywords:
         score = 0
+    elif len(matched_keywords) == 1:
+        score = SCORING_CONFIG["procurement"]["strong_trigger"]
+    else:
+        score = SCORING_CONFIG["procurement"]["strong_trigger"] + \
+                SCORING_CONFIG["procurement"]["additional_procurement"]
+    return score, matched_keywords
+
+
+def score_structural_markers(text: str) -> (int, list):
+    """Score structural markers (adds bonus points)."""
+    matched_structural = match_keywords(text, STRUCTURAL_PROCUREMENT_MARKERS)
+    score = SCORING_CONFIG["procurement"]["structural_marker"] if matched_structural else 0
+    return score, matched_structural
+
+def score_tender(text: str) -> dict:
+    """Full enrichment pipeline for one tender."""
+    strong_score, matched_keywords = score_strong_triggers(text)
+    structural_score, matched_structural = score_structural_markers(text)
     
-    return score, list(matched_keywords)
+    total_score = strong_score + structural_score
+    
+    return {
+        "procurement_score": total_score,
+        "matched_keywords": matched_keywords,
+        "matched_structural_markers": matched_structural,
+    }
 
-# Example usage with NDJSON enriched tenders
-enriched_tenders_file = "outputs/enriched_tenders.ndjson"
-scored_tenders = []
 
-with open(enriched_tenders_file, "r", encoding="utf-8") as f:
-    lines = f.readlines()[1:]  # skip metadata
-    for line in lines:
-        tender = json.loads(line)
+# ------------------------------
+# File Utilities
+# ------------------------------
+def load_enriched_tenders(filename: str) -> tuple:
+    """Load enriched NDJSON (skip metadata line)."""
+    tenders = []
+    source_url = None
+    with open(filename, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        if lines:
+            metadata = json.loads(lines[0].strip())
+            source_url = metadata.get("source_url")
+        for line in lines[1:]:
+            if line.strip():
+                tenders.append(json.loads(line))
+    return tenders, source_url
+
+
+def save_scored_tenders(tenders: list, source_url: str, filename: str):
+    """Save enriched scored tenders to NDJSON."""
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump({"source_url": source_url}, f, ensure_ascii=False)
+        f.write("\n")
+        for tender in tenders:
+            json.dump(tender, f, ensure_ascii=False)
+            f.write("\n")
+
+
+# ------------------------------
+# Main Workflow
+# ------------------------------
+def main():
+    enriched_tenders_file = "outputs/enriched_tenders.ndjson"
+    scored_tenders_file = "outputs/scored_tenders.ndjson"
+
+    tenders, source_url = load_enriched_tenders(enriched_tenders_file)
+
+    scored_tenders = []
+    for tender in tenders:
         full_text = tender.get("full_text", "")
-        score, matched = score_tender_text(full_text, STRONG_PROCUREMENT_TRIGGERS, SCORING_CONFIG)
-        tender["procurement_score"] = score
-        tender["matched_keywords"] = matched
+        enrichment = score_tender(full_text)
+        tender.update(enrichment)
         scored_tenders.append(tender)
 
-# Print scored tenders with matched keywords
-for t in scored_tenders[:5]:
-    print(f"{t['number']}: Score = {t['procurement_score']}, Matched Keywords = {t['matched_keywords']}")
+    save_scored_tenders(scored_tenders, source_url, scored_tenders_file)
+
+    # Sample output
+    for t in scored_tenders[:5]:
+        print(
+            f"{t['number']}: Score={t['procurement_score']}, "
+            f"Keywords={t['matched_keywords']}, "
+            f"Structural={t['matched_structural_markers']}"
+        )
+
+
+if __name__ == "__main__":
+    main()

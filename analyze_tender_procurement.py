@@ -29,7 +29,15 @@ def score_tender_text(text, keywords_dict, scoring_config):
             if re.search(pattern, norm_text):
                 matched_keywords.add(keyword)  # keep original for reporting
     
-    score = len(matched_keywords) * scoring_config["procurement"]["strong_trigger"]
+    # Scoring logic: 4 points if at least one trigger found, +2 points if more than one found
+    if len(matched_keywords) > 0:
+        if len(matched_keywords) == 1:
+            score = scoring_config["procurement"]["strong_trigger"]  # 4 points for one trigger
+        else:
+            score = scoring_config["procurement"]["strong_trigger"] + scoring_config["procurement"]["additional_procurement"]  # 4 + 2 = 6 points for multiple triggers
+    else:
+        score = 0
+    
     return score, list(matched_keywords)
 
 # Example usage with NDJSON enriched tenders

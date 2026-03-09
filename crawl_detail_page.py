@@ -7,37 +7,14 @@ import json
 def simulate_postback(page, target, argument=""):
     print(f"Executing postback: target={target}, argument={argument}")
     
-    # Wait a bit to ensure page is fully loaded
-    page.wait_for_load_state("networkidle")
-    
-    # Check if __doPostBack function exists before calling it
-    has_postback = page.evaluate("() => typeof __doPostBack !== 'undefined'")
-    
-    if not has_postback:
-        print("__doPostBack function not found, reloading page...")
-        page.reload()
-        page.wait_for_load_state("networkidle")
-        
-        # Check again after reload
-        has_postback = page.evaluate("() => typeof __doPostBack !== 'undefined'")
-        if not has_postback:
-            raise RuntimeError("__doPostBack function still not available after reload")
-    
     # Execute the postback
-    try:
-        page.evaluate(f"__doPostBack('{target}','{argument}')")
-    except Exception as e:
-        print(f"Error executing postback: {e}")
-        # Try to reload and retry once
-        page.reload()
-        page.wait_for_load_state("networkidle")
-        page.evaluate(f"__doPostBack('{target}','{argument}')")
+    page.evaluate(f"__doPostBack('{target}','{argument}')")
     
     # Wait for navigation to complete
     page.wait_for_load_state("networkidle")
     
     import time
-    time.sleep(2)  # Increased wait time
+    time.sleep(1)
     
     html = page.content()
     print(f"Got HTML content, length: {len(html)}")
@@ -133,19 +110,42 @@ if __name__ == "__main__":
     if tenders and source_url:
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            page = browser.new_page()
+            context = browser.new_context()
             
-            # Go to the main page first using URL from metadata
-            page.goto(source_url)
-            page.wait_for_load_state("networkidle")
+            # Open main listing page
+            main_page = context.new_page()
+            main_page.goto(source_url)
+            main_page.wait_for_load_state("networkidle")
             
-            # Crawl details for each tender
-            enriched_tenders = crawl_details(page, tenders)
+            enriched_tenders = []
             
-            # Save enriched tenders with source URL
+            for tender in tenders:
+                target = tender["details_url"]
+                
+                # Open new page for each detail
+                detail_page = context.new_page()
+                detail_page.goto(source_url)
+                detail_page.wait_for_load_state("networkidle")
+                
+                # Execute postback in this tab
+                detail_page.evaluate(f"__doPostBack('{target}', '')")
+                detail_page.wait_for_load_state("networkidle")
+                
+                # Extract full text
+                html = detail_page.content()
+                soup = BeautifulSoup(html, "html.parser")
+                text = soup.get_text(" ", strip=True)
+                
+                tender["full_text"] = text
+                enriched_tenders.append(tender)
+                
+                print(f"Processed: {tender['number']}")
+                
+                # Close the tab to prevent state issues
+                detail_page.close()
+            
+            # Save results
             save_enriched_tenders(enriched_tenders, source_url)
-            
-            print(f"Processed {len(enriched_tenders)} tenders with full text")
             
             browser.close()
     else:

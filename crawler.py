@@ -2,20 +2,21 @@ from ast import arguments
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import re
+import json
 
-URL = "https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs="
+URL = "https://comprar.gob.ar/Ventas.aspx?qs=LowO6swbfXKskA0mwEy5OeJ7Q9YkqerX"
 
 
 # TABLE_ID = "ctl00_CPH1_GridListaPliegosAperturaProxima"
 
-def simulate_postback(page, target, argument):
+def simulate_postback(page, target, argument=""):
     print(f"Executing postback: target={target}, argument={argument}")
     
     # Execute the postback
     page.evaluate(f"__doPostBack('{target}','{argument}')")
     
     # Wait for navigation to complete
-    page.wait_for_load_state("load")
+    page.wait_for_load_state("networkidle")
     
     import time
     time.sleep(1)
@@ -178,13 +179,30 @@ def crawl_all_tenders(url):
 
     return all_tenders
 
+def save_to_ndjson(tenders, filename="outputs/tenders.ndjson", url=None):
+    """Save tenders to NDJSON file with URL metadata"""
+    with open(filename, 'w', encoding='utf-8') as f:
+        # Write URL as metadata at the top if provided
+        if url:
+            metadata = {"source_url": url, "total_tenders": len(tenders)}
+            json.dump(metadata, f, ensure_ascii=False)
+            f.write('\n')
+        
+        # Write each tender
+        for tender in tenders:
+            json.dump(tender, f, ensure_ascii=False)
+            f.write('\n')
+    print(f"Saved {len(tenders)} tenders to {filename}")
+
 
 if __name__ == "__main__":
 
     tenders = crawl_all_tenders(URL)
-    
 
     print("Total tenders:", len(tenders))
+
+    # Save tenders to NDJSON with URL metadata
+    save_to_ndjson(tenders, url=URL)
 
     for t in tenders[:5]:
         print(t)

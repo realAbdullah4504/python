@@ -112,7 +112,7 @@ def load_tenders_from_ndjson(filename="outputs/tenders.ndjson"):
     return tenders, source_url
 
 
-def save_enriched_tenders(tenders, source_url, filename="enriched_tenders.ndjson"):
+def save_enriched_tenders(tenders, source_url, filename="outputs/enriched_tenders.ndjson"):
     """Save enriched tenders to NDJSON file"""
     with open(filename, 'w', encoding='utf-8') as f:
         # Write metadata

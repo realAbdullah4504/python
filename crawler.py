@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 
-URL = "https://comprar.gob.ar/Ventas.aspx?qs=LowO6swbfXKskA0mwEy5OeJ7Q9YkqerX"
+URL = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
 
 
 # TABLE_ID = "ctl00_CPH1_GridListaPliegosAperturaProxima"

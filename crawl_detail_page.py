@@ -6,7 +6,7 @@ import json
 
 def simulate_postback(page, target, argument=""):
     print(f"Executing postback: target={target}, argument={argument}")
-    
+
     # Execute the postback
     page.evaluate(f"__doPostBack('{target}','{argument}')")
     
@@ -16,54 +16,12 @@ def simulate_postback(page, target, argument=""):
     import time
     time.sleep(1)
     
+    # Get current URL after navigation
+    real_url = page.url
+    print(f"Resolved real URL: {real_url}")
+    
     html = page.content()
-    print(f"Got HTML content, length: {len(html)}")
-    return html
-
-def crawl_details(page, listing_tenders):
-
-    results = []
-
-    for tender in listing_tenders:
-
-        target = tender["details_url"]
-
-        try:
-
-            html = simulate_postback(page, target)
-
-            soup = BeautifulSoup(html, "html.parser")
-
-            text = soup.get_text(" ", strip=True).lower()
-
-            print("Text:", text)
-
-            enriched = {
-                **tender,
-                "full_text": text
-            }
-
-            results.append(enriched)
-
-            print("Processed:", tender["number"])
-
-            # Go back to listing page with better error handling
-            try:
-                page.go_back()
-                page.wait_for_load_state("networkidle")
-                # Additional wait to ensure page is fully loaded
-                import time
-                time.sleep(1)
-            except Exception as nav_error:
-                print(f"Navigation back failed for {tender['number']}: {nav_error}")
-                # Try to navigate to the original URL if go_back fails
-                page.goto(source_url)
-                page.wait_for_load_state("networkidle")
-
-        except Exception as e:
-            print("Failed:", tender["number"], e)
-
-    return results
+    return html, real_url
 
 
 def load_tenders_from_ndjson(filename="outputs/tenders.ndjson"):
@@ -117,7 +75,7 @@ if __name__ == "__main__":
             main_page.goto(source_url)
             main_page.wait_for_load_state("networkidle")
             
-            for tender in tenders:
+            for tender in tenders[:2]:
                 target = tender["details_url"]
                 
                 # Open new page for each detail
@@ -128,6 +86,8 @@ if __name__ == "__main__":
                 # Execute postback in this tab
                 detail_page.evaluate(f"__doPostBack('{target}', '')")
                 detail_page.wait_for_load_state("networkidle")
+
+                print("Detail page loaded",detail_page.url)
                 
                 # Extract full text
                 html = detail_page.content()
@@ -135,6 +95,7 @@ if __name__ == "__main__":
                 text = soup.get_text(" ", strip=True)
                 
                 tender["full_text"] = text
+                tender["details_url"] = detail_page.url # Get real URL instead of postback function string
                 
                 # Save this tender immediately
                 save_enriched_tender(tender, source_url)

@@ -44,13 +44,6 @@ def score_pci_compliance(text: str) -> (int, list):
     if matched_secondary:
         score += len(matched_secondary) * SCORING_CONFIG["pci"]["payment_card_terms"]
     
-    # Check for version 4 references
-    version_keywords = ["4.0", "4.0.1", "v4.0", "v4.0.1"]
-    for version in version_keywords:
-        if version.lower() in text.lower():
-            score += SCORING_CONFIG["pci"]["version_4"]
-            break
-    
     all_matched = matched_primary + matched_secondary
     return score, all_matched
 

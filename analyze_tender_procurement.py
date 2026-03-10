@@ -114,7 +114,7 @@ def main():
     save_scored_tenders(scored_tenders, source_url, scored_tenders_file)
 
     # Sample output
-    for t in scored_tenders[:5]:
+    for t in scored_tenders:
         print(
             f"{t['number']}: Score={t['procurement_score']}, "
             f"Keywords={t['matched_keywords']}, "

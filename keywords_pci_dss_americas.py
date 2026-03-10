@@ -54,7 +54,7 @@ STRUCTURAL_PROCUREMENT_MARKERS = {
 # PCI / Payment Compliance Signals
 PCI_COMPLIANCE_SIGNALS = {
     "primary": [
-        "PCI DSS", "PCI-DSS", "Payment Card Industry", "PCI compliance"
+        "PCI", "PCI DSS", "QSA", "QPA", "PCI PIN", "PIN", "Ciberseguridad", "ISO 27001", "escaneo de vulnerabilidades", "analisis de vulnerabilidades", "pentest", "test de penetración"
     ],
     "secondary": [
         "4.0", "4.0.1", "v4.0", "v4.0.1", "Cardholder Data", "CHD", 

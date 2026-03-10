@@ -75,7 +75,7 @@ if __name__ == "__main__":
             main_page.goto(source_url)
             main_page.wait_for_load_state("networkidle")
             
-            for tender in tenders[:2]:
+            for tender in tenders[:10]:
                 target = tender["details_url"]
                 
                 # Open new page for each detail
@@ -83,8 +83,21 @@ if __name__ == "__main__":
                 detail_page.goto(source_url)
                 detail_page.wait_for_load_state("networkidle")
                 
-                # Execute postback in this tab
-                detail_page.evaluate(f"__doPostBack('{target}', '')")
+                # Convert target to element ID and click directly
+                elem_id = target.replace('$', '_')
+                print(f"Looking for element ID: {elem_id}")
+                
+                link = detail_page.locator(f"#{elem_id}")
+                
+                if link.count() > 0:
+                    with detail_page.expect_navigation():
+                        link.click()
+                    print(f"Direct click successful, new URL: {detail_page.url}")
+                else:
+                    print("Element not found, falling back to postback")
+                    detail_page.evaluate(f"__doPostBack('{target}', '')")
+                    detail_page.wait_for_load_state("networkidle")
+                
                 detail_page.wait_for_load_state("networkidle")
 
                 print("Detail page loaded",detail_page.url)

@@ -3,9 +3,8 @@ import json
 import unicodedata
 import re
 from keywords_pci_dss_americas import (
-    STRONG_PROCUREMENT_TRIGGERS,
-    STRUCTURAL_PROCUREMENT_MARKERS,
-    SCORING_CONFIG
+    SCORING_CONFIG,
+    PCI_COMPLIANCE_SIGNALS
 )
 
 # ------------------------------
@@ -34,36 +33,36 @@ def match_keywords(text: str, keywords_dict: dict) -> list:
 # ------------------------------
 # Scoring Functions
 # ------------------------------
-def score_strong_triggers(text: str) -> (int, list):
-    """Score strong procurement triggers."""
-    matched_keywords = match_keywords(text, STRONG_PROCUREMENT_TRIGGERS)
-    if not matched_keywords:
-        score = 0
-    elif len(matched_keywords) == 1:
-        score = SCORING_CONFIG["procurement"]["strong_trigger"]
-    else:
-        score = SCORING_CONFIG["procurement"]["strong_trigger"] + \
-                SCORING_CONFIG["procurement"]["additional_procurement"]
-    return score, matched_keywords
+def score_pci_compliance(text: str) -> (int, list):
+    """Score PCI compliance signals."""
+    matched_primary = match_keywords(text, {"primary": PCI_COMPLIANCE_SIGNALS["primary"]})
+    matched_secondary = match_keywords(text, {"secondary": PCI_COMPLIANCE_SIGNALS["secondary"]})
+    
+    score = 0
+    if matched_primary:
+        score += len(matched_primary) * SCORING_CONFIG["pci"]["primary_pci"]
+    if matched_secondary:
+        score += len(matched_secondary) * SCORING_CONFIG["pci"]["payment_card_terms"]
+    
+    # Check for version 4 references
+    version_keywords = ["4.0", "4.0.1", "v4.0", "v4.0.1"]
+    for version in version_keywords:
+        if version.lower() in text.lower():
+            score += SCORING_CONFIG["pci"]["version_4"]
+            break
+    
+    all_matched = matched_primary + matched_secondary
+    return score, all_matched
 
-
-def score_structural_markers(text: str) -> (int, list):
-    """Score structural markers (adds bonus points)."""
-    matched_structural = match_keywords(text, STRUCTURAL_PROCUREMENT_MARKERS)
-    score = SCORING_CONFIG["procurement"]["structural_marker"] if matched_structural else 0
-    return score, matched_structural
 
 def score_tender(text: str) -> dict:
     """Full enrichment pipeline for one tender."""
-    strong_score, matched_keywords = score_strong_triggers(text)
-    structural_score, matched_structural = score_structural_markers(text)
-    
-    total_score = strong_score + structural_score
+    # PCI compliance scoring
+    pci_score, matched_pci = score_pci_compliance(text)
     
     return {
-        "procurement_score": total_score,
-        "matched_keywords": matched_keywords,
-        "matched_structural_markers": matched_structural,
+        "pci_score": pci_score,
+        "matched_pci_keywords": matched_pci,
     }
 
 
@@ -116,9 +115,9 @@ def main():
     # Sample output
     for t in scored_tenders:
         print(
-            f"{t['number']}: Score={t['procurement_score']}, "
-            f"Keywords={t['matched_keywords']}, "
-            f"Structural={t['matched_structural_markers']}"
+            f"{t['number']}: "
+            f"PCI Score={t.get('pci_score', 0)}, "
+            f"PCI Keywords={t.get('matched_pci_keywords', [])}"
         )
 
 

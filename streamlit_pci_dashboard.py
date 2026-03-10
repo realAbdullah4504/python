@@ -21,13 +21,14 @@ def load_scored_tenders(filename: str):
 # ------------------------------
 def tenders_to_df(tenders: list):
     data = []
+    print(tenders)
     for t in tenders:
         data.append({
             "Tender Number": t.get("number", ""),
             "Title": t.get("title", ""),
             "PCI Score": t.get("pci_score", 0),
             "Matched PCI Keywords": ", ".join(t.get("matched_pci_keywords", [])),
-            "Source URL": t.get("url", "")
+            "Source URL": t.get("details_url", "")
         })
     df = pd.DataFrame(data)
     return df

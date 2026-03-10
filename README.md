@@ -1,12 +1,23 @@
-1. Crawl page → extract text
-2. Normalize text (lowercase + remove accents)
-3. Check noise keywords
-      └─ if noise found → reject page early
-4. Match strong procurement triggers
-5. Match structural markers
-6. Match PCI keywords
-7. Calculate scores:
-      procurement_score = strong_triggers + structural_markers
-      pci_score = PCI primary + PCI secondary
-8. Apply thresholds
-      └─ if procurement_score >= threshold AND pci_score >= threshold → valid PCI tender
+The system first discovers websites from the target regions (Latin America, Caribbean, Central and South America) using search engines.
+
+From those results, it filters and keeps only relevant domains (for example government portals, bank procurement pages, and similar sources) while excluding U.S. federal domains.
+
+The crawler then visits those websites and collects their pages.
+
+For each page:
+
+It ignores pages that contain noise terms (for example training, blog, course, webinar, etc.).
+
+It checks whether the page looks like a procurement/tender page by detecting procurement signals such as RFP, licitación, edital, tender notice, etc.
+
+Only the pages that appear to be procurement processes are shortlisted.
+
+On those shortlisted pages, the system then checks for PCI-related terms (for example PCI DSS, payment card industry, cardholder data, etc.).
+
+If both conditions are met:
+
+it is a procurement/tender page
+
+and it mentions PCI/payment card compliance
+
+then the system generates an alert for that page.

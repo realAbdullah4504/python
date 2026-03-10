@@ -59,7 +59,7 @@ def extract_pagination_links(soup):
     return pagination_links
 
 
-def extract_listing_rows(soup):
+def extract_listing_rows(soup, page_no=1):
 
     tenders = []
 
@@ -95,7 +95,8 @@ def extract_listing_rows(soup):
             "type": cells[2].get_text(strip=True),
             "date": cells[3].get_text(strip=True),
             "status": cells[4].get_text(strip=True),
-            "details_url": target 
+            "details_url": target,
+            "page_no": page_no
         }
         tenders.append(tender)
 
@@ -105,6 +106,7 @@ def extract_listing_rows(soup):
 def crawl_all_tenders(url):
 
     all_tenders = []
+    seen_tender_numbers = set()
 
     with sync_playwright() as p:
 
@@ -118,8 +120,11 @@ def crawl_all_tenders(url):
         soup = BeautifulSoup(html, "html.parser")
 
         # page 1 tenders
-        tenders = extract_listing_rows(soup)
-        all_tenders.extend(tenders)
+        tenders = extract_listing_rows(soup, page_no=1)
+        for tender in tenders:
+            if tender["number"] not in seen_tender_numbers:
+                seen_tender_numbers.add(tender["number"])
+                all_tenders.append(tender)
 
         current_page = 1
 
@@ -168,16 +173,30 @@ def crawl_all_tenders(url):
 
             soup = BeautifulSoup(html, "html.parser")
 
-            tenders = extract_listing_rows(soup)
+            tenders = extract_listing_rows(soup, page_no=current_page)
             
             if not tenders:
                 break
                 
-            all_tenders.extend(tenders)
+            # Add only new tenders (deduplication)
+            new_tenders_count = 0
+            for tender in tenders:
+                if tender["number"] not in seen_tender_numbers:
+                    seen_tender_numbers.add(tender["number"])
+                    all_tenders.append(tender)
+                    new_tenders_count += 1
+            
+            print(f"Added {new_tenders_count} new tenders from page {current_page}")
+            
+            # If no new tenders found, we might be at the end
+            if new_tenders_count == 0:
+                print("No new tenders found, stopping crawl")
+                break
 
         browser.close()
 
     return all_tenders
+
 
 def save_to_ndjson(tenders, filename="outputs/tenders.ndjson", url=None):
     """Save tenders to NDJSON file with URL metadata"""

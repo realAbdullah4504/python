@@ -89,18 +89,18 @@ def load_tenders_from_ndjson(filename="outputs/tenders.ndjson"):
     return tenders, source_url
 
 
-def save_enriched_tenders(tenders, source_url, filename="outputs/enriched_tenders.ndjson"):
-    """Save enriched tenders to NDJSON file"""
-    with open(filename, 'w', encoding='utf-8') as f:
-        # Write metadata
-        metadata = {"source_url": source_url}
-        json.dump(metadata, f, ensure_ascii=False)
-        f.write('\n')
-        
-        for tender in tenders:
-            json.dump(tender, f, ensure_ascii=False)
+def save_enriched_tender(tender, source_url, filename="outputs/enriched_tenders.ndjson"):
+    """Save enriched tender to NDJSON file"""
+    with open(filename, 'a', encoding='utf-8') as f:
+        if f.tell() == 0:
+            # Write metadata if file is empty
+            metadata = {"source_url": source_url}
+            json.dump(metadata, f, ensure_ascii=False)
             f.write('\n')
-    print(f"Saved {len(tenders)} enriched tenders to {filename}")
+        
+        json.dump(tender, f, ensure_ascii=False)
+        f.write('\n')
+        f.flush()  # Ensure immediate write to disk
 
 
 if __name__ == "__main__":
@@ -116,8 +116,6 @@ if __name__ == "__main__":
             main_page = context.new_page()
             main_page.goto(source_url)
             main_page.wait_for_load_state("networkidle")
-            
-            enriched_tenders = []
             
             for tender in tenders:
                 target = tender["details_url"]
@@ -137,15 +135,14 @@ if __name__ == "__main__":
                 text = soup.get_text(" ", strip=True)
                 
                 tender["full_text"] = text
-                enriched_tenders.append(tender)
+                
+                # Save this tender immediately
+                save_enriched_tender(tender, source_url)
                 
                 print(f"Processed: {tender['number']}")
                 
-                # Close the tab to prevent state issues
+                # Close tab to prevent state issues
                 detail_page.close()
-            
-            # Save results
-            save_enriched_tenders(enriched_tenders, source_url)
             
             browser.close()
     else:

@@ -58,7 +58,7 @@ def extract_pagination_links(soup):
     return pagination_links
 
 
-def extract_listing_rows(soup, page_no=1):
+def extract_listing_rows(soup, page_no=1,pagination_target=""):
 
     tenders = []
 
@@ -90,12 +90,13 @@ def extract_listing_rows(soup, page_no=1):
         # print(link, target)
         tender = {
             "number": cells[0].get_text(strip=True),
-            "description": cells[1].get_text(strip=True),
-            "type": cells[2].get_text(strip=True),
-            "date": cells[3].get_text(strip=True),
-            "status": cells[4].get_text(strip=True),
+            # "description": cells[1].get_text(strip=True),
+            # "type": cells[2].get_text(strip=True),
+            # "date": cells[3].get_text(strip=True),
+            # "status": cells[4].get_text(strip=True),
             "details_url": target,
-            "page_no": page_no
+            "page_no": page_no,
+            "pagination_target":pagination_target
         }
         tenders.append(tender)
 
@@ -185,7 +186,7 @@ def crawl_all_tenders(url):
 
             soup = BeautifulSoup(html, "html.parser")
 
-            tenders = extract_listing_rows(soup, page_no=current_page)
+            tenders = extract_listing_rows(soup, page_no=current_page,pagination_target=next_link["target"])
             
             if not tenders:
                 break

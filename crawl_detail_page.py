@@ -11,21 +11,32 @@ def simulate_postback(page, target: str, argument: str = "") -> Tuple[str, str]:
     """Execute ASP.NET postback and return HTML content and real URL"""
     print(f"Executing postback: target={target}, argument={argument}")
 
-    # Execute the postback
-    page.evaluate(f"__doPostBack('{target}','{argument}')")
+    # Execute the postback with navigation expectation
+    with page.expect_navigation():
+        page.evaluate(f"__doPostBack('{target}','{argument}')")
     
     # Wait for navigation to complete
     page.wait_for_load_state("networkidle")
     
+    # Add a small delay to ensure content is fully loaded
     import time
-    time.sleep(1)
+    time.sleep(2)
     
     # Get current URL after navigation
     real_url = page.url
     print(f"Resolved real URL: {real_url}")
     
-    html = page.content()
-    return html, real_url
+    # Try to get content with retry logic
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            html = page.content()
+            return html, real_url
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise e
+            print(f"Retry {attempt + 1}/{max_retries} after error: {e}")
+            time.sleep(1)
 
 
 def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
@@ -74,9 +85,8 @@ def navigate_to_main_page(context, source_url: str):
     return main_page
 
 
-def extract_full_text_from_page(page) -> str:
+def extract_full_text_from_page(html: str) -> str:
     """Extract and clean full text from a page"""
-    html = page.content()
     soup = BeautifulSoup(html, "html.parser")
     return soup.get_text(" ", strip=True)
 
@@ -113,16 +123,17 @@ def process_single_tender(context, source_url: str, tender: Dict) -> Dict:
     detail_page.wait_for_load_state("networkidle")
     
     # Try direct click first, fallback to postback
-    if not try_direct_click(detail_page, target):
-        fallback_to_postback(detail_page, target)
+    # if not try_direct_click(detail_page, target):
+    simulate_postback(detail_page, tender["pagination_target"],tender["page_no"])
+    html,real_url=simulate_postback(detail_page, target)
+    print(real_url)
     
     detail_page.wait_for_load_state("networkidle")
-    print("Detail page loaded", detail_page.url)
     
     # Extract full text and update tender
-    full_text = extract_full_text_from_page(detail_page)
+    full_text = extract_full_text_from_page(html)
     tender["full_text"] = full_text
-    tender["details_url"] = detail_page.url  # Get real URL instead of postback function string
+    tender["details_url"] = real_url  # Get real URL instead of postback function string
     
     # Close tab to prevent state issues
     detail_page.close()
@@ -144,8 +155,17 @@ def process_tenders(tenders: List[Dict], source_url: str, max_tenders: int = 10)
                 print(f"Error processing tender {tender.get('number', 'unknown')}: {e}")
                 continue
     finally:
-        browser.close()
-        playwright.stop()
+        try:
+            browser.close()
+            playwright.stop()
+        except Exception as e:
+            print(f"Warning: Error during browser cleanup: {e}")
+            # Try to force cleanup if normal close fails
+            try:
+                if 'playwright' in locals():
+                    playwright.stop()
+            except:
+                pass
 
 
 def main() -> None:

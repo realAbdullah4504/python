@@ -102,11 +102,26 @@ def extract_listing_rows(soup, page_no=1):
 
     return tenders
 
+def existing_tender_numbers():
+    """Load existing tender numbers from NDJSON file"""
+    existing_numbers = set()
+    try:
+        with open("outputs/tenders.ndjson", "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    data = json.loads(line)
+                    if "number" in data:
+                        existing_numbers.add(data["number"])
+    except FileNotFoundError:
+        pass
+    return existing_numbers
 
 def crawl_all_tenders(url):
 
     all_tenders = []
+    
     seen_tender_numbers = set()
+    seen_tender_numbers.update(existing_tender_numbers())
 
     with sync_playwright() as p:
 
@@ -198,20 +213,34 @@ def crawl_all_tenders(url):
     return all_tenders
 
 
-def save_to_ndjson(tenders, filename="outputs/tenders.ndjson", url=None):
-    """Save tenders to NDJSON file with URL metadata"""
-    with open(filename, 'w', encoding='utf-8') as f:
-        # Write URL as metadata at the top if provided
-        if url:
-            metadata = {"source_url": url, "total_tenders": len(tenders)}
-            json.dump(metadata, f, ensure_ascii=False)
-            f.write('\n')
+def save_to_ndjson(tenders, filename="outputs/tenders.ndjson"):
+    """Save tenders to NDJSON file with newest tenders at the top"""
+    
+    try:
+        # Read existing content
+        existing_content = ""
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                existing_content = f.read()
+        except FileNotFoundError:
+            pass
         
-        # Write each tender
-        for tender in tenders:
-            json.dump(tender, f, ensure_ascii=False)
-            f.write('\n')
-    print(f"Saved {len(tenders)} tenders to {filename}")
+        # Write new tenders first, then existing content
+        with open(filename, 'w', encoding='utf-8') as f:
+            # Write new tenders
+            for tender in tenders:
+                json.dump(tender, f, ensure_ascii=False)
+                f.write('\n')
+            
+            # Write existing content
+            if existing_content:
+                f.write(existing_content)
+                
+    except Exception as e:
+        print(f"Error saving tenders: {e}")
+        return
+    
+    print(f"Saved {len(tenders)} tenders to {filename} (newest at top)")
 
 
 if __name__ == "__main__":
@@ -220,8 +249,8 @@ if __name__ == "__main__":
 
     print("Total tenders:", len(tenders))
 
-    # Save tenders to NDJSON with URL metadata
-    save_to_ndjson(tenders, url=URL)
+    # Save tenders to NDJSON
+    save_to_ndjson(tenders)
 
     for t in tenders[:5]:
         print(t)

@@ -5,6 +5,8 @@ import json
 from typing import List, Dict, Optional, Tuple
 
 
+URL = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
+
 def simulate_postback(page, target: str, argument: str = "") -> Tuple[str, str]:
     """Execute ASP.NET postback and return HTML content and real URL"""
     print(f"Executing postback: target={target}, argument={argument}")
@@ -26,27 +28,20 @@ def simulate_postback(page, target: str, argument: str = "") -> Tuple[str, str]:
     return html, real_url
 
 
-def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> Tuple[List[Dict], Optional[str]]:
+def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
     """Load tenders from NDJSON file, skipping metadata line"""
     tenders = []
-    source_url = None
     
     with open(filename, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         
-        # Read metadata from first line
-        if lines:
-            metadata = json.loads(lines[0].strip())
-            source_url = metadata.get("source_url")
-            print(f"Source URL: {source_url}")
-        
-        # Skip first line (metadata) and process tender records
-        for line in lines[1:]:
+        # Process tender records
+        for line in lines:
             if line.strip():
                 tenders.append(json.loads(line))
     
     print(f"Loaded {len(tenders)} tenders from {filename}")
-    return tenders, source_url
+    return tenders
 
 
 def save_enriched_tender(tender: Dict, source_url: str, filename: str = "outputs/enriched_tenders.ndjson") -> None:
@@ -156,17 +151,17 @@ def process_tenders(tenders: List[Dict], source_url: str, max_tenders: int = 10)
 def main() -> None:
     """Main function to orchestrate the tender processing workflow"""
     # Load tenders and URL from NDJSON
-    tenders, source_url = load_tenders_from_ndjson()
+    tenders = load_tenders_from_ndjson()
     
-    if not tenders or not source_url:
-        print("No tenders or source URL found in NDJSON file")
+    if not tenders:
+        print("No tenders found in NDJSON file")
         return
     
     # Process all tenders, but limit to the number of tenders
     max_tenders = len(tenders)
-    process_tenders(tenders, source_url, max_tenders)
+    process_tenders(tenders, URL, max_tenders)
     print(f"Completed processing {min(len(tenders), max_tenders)} tenders")
 
 
 if __name__ == "__main__":
-    main(max_tenders=10)
+    main()

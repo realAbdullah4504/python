@@ -7,7 +7,6 @@ import json
 URL = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
 
 
-# TABLE_ID = "ctl00_CPH1_GridListaPliegosAperturaProxima"
 
 def simulate_postback(page, target, argument=""):
     print(f"Executing postback: target={target}, argument={argument}")
@@ -140,14 +139,12 @@ def crawl_all_tenders(url):
             if tender["number"] not in seen_tender_numbers:
                 seen_tender_numbers.add(tender["number"])
                 all_tenders.append(tender)
+                save_tender_to_ndjson(tender)
 
         current_page = 1
 
         while True:
             pagination_links = extract_pagination_links(soup)
-            # print(f"Found {len(pagination_links)} pagination links on page {current_page}")
-            # for link in pagination_links:
-            #     print(f"  Page: '{link['page_no']}' -> {link['argument']}")
 
             next_page_str = str(current_page + 1)
             next_link = None
@@ -199,6 +196,7 @@ def crawl_all_tenders(url):
                 if tender["number"] not in seen_tender_numbers:
                     seen_tender_numbers.add(tender["number"])
                     all_tenders.append(tender)
+                    save_tender_to_ndjson(tender)
                     new_tenders_count += 1
             
             print(f"Added {new_tenders_count} new tenders from page {current_page}")
@@ -213,44 +211,26 @@ def crawl_all_tenders(url):
     return all_tenders
 
 
-def save_to_ndjson(tenders, filename="outputs/tenders.ndjson"):
-    """Save tenders to NDJSON file with newest tenders at the top"""
+def save_tender_to_ndjson(tender, filename="outputs/tenders.ndjson"):
+    """Save a single tender to NDJSON file (append mode)"""
     
     try:
-        # Read existing content
-        existing_content = ""
-        try:
-            with open(filename, 'r', encoding='utf-8') as f:
-                existing_content = f.read()
-        except FileNotFoundError:
-            pass
-        
-        # Write new tenders first, then existing content
-        with open(filename, 'w', encoding='utf-8') as f:
-            # Write new tenders
-            for tender in tenders:
-                json.dump(tender, f, ensure_ascii=False)
-                f.write('\n')
-            
-            # Write existing content
-            if existing_content:
-                f.write(existing_content)
+        with open(filename, 'a', encoding='utf-8') as f:
+            json.dump(tender, f, ensure_ascii=False)
+            f.write('\n')
                 
     except Exception as e:
-        print(f"Error saving tenders: {e}")
-        return
+        print(f"Error saving tender {tender.get('number', 'unknown')}: {e}")
+        return False
     
-    print(f"Saved {len(tenders)} tenders to {filename} (newest at top)")
+    return True
 
 
 if __name__ == "__main__":
 
     tenders = crawl_all_tenders(URL)
 
-    print("Total tenders:", len(tenders))
-
-    # Save tenders to NDJSON
-    save_to_ndjson(tenders)
+    print("Total tenders found:", len(tenders))
 
     for t in tenders[:5]:
         print(t)

@@ -52,7 +52,7 @@ def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[D
 
 def save_enriched_tender(tender: Dict, filename: str = "outputs/enriched_tenders.ndjson") -> None:
     """Save enriched tender to NDJSON file"""
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(filename, 'a', encoding='utf-8') as f:
         json.dump(tender, f, ensure_ascii=False)
         f.write('\n')
         f.flush()  # Ensure immediate write to disk

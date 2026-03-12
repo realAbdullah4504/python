@@ -18,8 +18,8 @@ def simulate_postback(page, target, argument=""):
     try:
         page.wait_for_url(lambda url: url != old_url, timeout=5000)
         print("Navigation happened")
-    except:
-        print("No navigation, waiting for DOM update")
+    except Exception as e:
+        print(f"No navigation, waiting for DOM update: {e}")
         page.wait_for_load_state("networkidle")
 
     import time
@@ -81,28 +81,6 @@ def extract_full_text_from_page(html: str) -> str:
     """Extract and clean full text from a page"""
     soup = BeautifulSoup(html, "html.parser")
     return soup.get_text(" ", strip=True)
-
-
-def try_direct_click(detail_page, target: str) -> bool:
-    """Try to click element directly by ID, return True if successful"""
-    elem_id = target.replace('$', '_')
-    print(f"Looking for element ID: {elem_id}")
-    
-    link = detail_page.locator(f"#{elem_id}")
-    
-    if link.count() > 0:
-        with detail_page.expect_navigation():
-            link.click()
-        print(f"Direct click successful, new URL: {detail_page.url}")
-        return True
-    return False
-
-
-def fallback_to_postback(detail_page, target: str) -> None:
-    """Fallback method using postback when direct click fails"""
-    print("Element not found, falling back to postback")
-    detail_page.evaluate(f"__doPostBack('{target}', '')")
-    detail_page.wait_for_load_state("networkidle")
 
 
 def process_single_tender(context, source_url: str, tender: Dict) -> Dict:

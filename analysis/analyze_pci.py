@@ -1,11 +1,10 @@
-# analyze_tender_enrichment.py
 import json
 import unicodedata
 import re
-from config.keywords_pci_dss_americas import (
-    SCORING_CONFIG,
-    PCI_COMPLIANCE_SIGNALS
-)
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent)) 
+from config.keywords_pci_dss_americas import SCORING_CONFIG, PCI_COMPLIANCE_SIGNALS
 
 import json
 

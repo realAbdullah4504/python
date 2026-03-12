@@ -53,12 +53,6 @@ def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[D
 def save_enriched_tender(tender: Dict, source_url: str, filename: str = "outputs/enriched_tenders.ndjson") -> None:
     """Save enriched tender to NDJSON file"""
     with open(filename, 'a', encoding='utf-8') as f:
-        if f.tell() == 0:
-            # Write metadata if file is empty
-            metadata = {"source_url": source_url}
-            json.dump(metadata, f, ensure_ascii=False)
-            f.write('\n')
-        
         json.dump(tender, f, ensure_ascii=False)
         f.write('\n')
         f.flush()  # Ensure immediate write to disk

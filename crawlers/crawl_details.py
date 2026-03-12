@@ -50,7 +50,7 @@ def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[D
     return tenders
 
 
-def save_enriched_tender(tender: Dict, source_url: str, filename: str = "outputs/enriched_tenders.ndjson") -> None:
+def save_enriched_tender(tender: Dict, filename: str = "outputs/enriched_tenders.ndjson") -> None:
     """Save enriched tender to NDJSON file"""
     with open(filename, 'a', encoding='utf-8') as f:
         json.dump(tender, f, ensure_ascii=False)
@@ -115,7 +115,7 @@ def process_tenders(tenders: List[Dict], source_url: str, max_tenders: int = 10)
         for tender in tenders[:max_tenders]:
             try:
                 enriched_tender = process_single_tender(context, source_url, tender)
-                save_enriched_tender(enriched_tender, source_url)
+                save_enriched_tender(enriched_tender)
                 print(f"Processed: {enriched_tender['number']}")
             except Exception as e:
                 print(f"Error processing tender {tender.get('number', 'unknown')}: {e}")

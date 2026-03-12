@@ -1,0 +1,11 @@
+{
+  "portals": [
+    {
+      "name": "Comprar Gob AR",
+      "url": "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=",
+      "country": "Argentina",
+      "type": "national",
+      "active": true
+    }
+  ]
+}

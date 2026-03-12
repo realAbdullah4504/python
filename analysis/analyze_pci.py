@@ -48,7 +48,7 @@ def score_pci_compliance(text: str) -> (int, list):
     if matched_primary:
         score += len(matched_primary) * SCORING_CONFIG["pci"]["primary_pci"]
     if matched_secondary:
-        score += len(matched_secondary) * SCORING_CONFIG["pci"]["payment_card_terms"]
+        score += len(matched_secondary) * SCORING_CONFIG["pci"]["version_4"]
     
     all_matched = matched_primary + matched_secondary
     return score, all_matched

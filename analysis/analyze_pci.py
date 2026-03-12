@@ -7,6 +7,13 @@ from config.keywords_pci_dss_americas import (
     PCI_COMPLIANCE_SIGNALS
 )
 
+import json
+
+with open("config/portals.json") as f:
+    config = json.load(f)
+
+URL = config["portals"][0]["url"]
+
 # ------------------------------
 # Text Utilities
 # ------------------------------
@@ -65,23 +72,18 @@ def score_tender(text: str) -> dict:
 def load_enriched_tenders(filename: str) -> tuple:
     """Load enriched NDJSON (skip metadata line)."""
     tenders = []
-    source_url = None
+
     with open(filename, "r", encoding="utf-8") as f:
         lines = f.readlines()
-        if lines:
-            metadata = json.loads(lines[0].strip())
-            source_url = metadata.get("source_url")
-        for line in lines[1:]:
+        for line in lines:
             if line.strip():
                 tenders.append(json.loads(line))
-    return tenders, source_url
+    return tenders
 
 
-def save_scored_tenders(tenders: list, source_url: str, filename: str):
+def save_scored_tenders(tenders: list, filename: str):
     """Save enriched scored tenders to NDJSON."""
     with open(filename, "w", encoding="utf-8") as f:
-        json.dump({"source_url": source_url}, f, ensure_ascii=False)
-        f.write("\n")
         for tender in tenders:
             json.dump(tender, f, ensure_ascii=False)
             f.write("\n")
@@ -94,7 +96,7 @@ def main():
     enriched_tenders_file = "outputs/enriched_tenders.ndjson"
     scored_tenders_file = "outputs/scored_tenders.ndjson"
 
-    tenders, source_url = load_enriched_tenders(enriched_tenders_file)
+    tenders = load_enriched_tenders(enriched_tenders_file)
 
     scored_tenders = []
     for tender in tenders:
@@ -103,7 +105,7 @@ def main():
         tender.update(enrichment)
         scored_tenders.append(tender)
 
-    save_scored_tenders(scored_tenders, source_url, scored_tenders_file)
+    save_scored_tenders(scored_tenders, scored_tenders_file)
 
     # Sample output
     for t in scored_tenders:

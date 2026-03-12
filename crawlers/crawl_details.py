@@ -5,7 +5,10 @@ import json
 from typing import List, Dict, Optional, Tuple
 
 
-URL = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
+with open("config/portals.json") as f:
+    config = json.load(f)
+
+URL = config["portals"][0]["url"]
 
 
 def simulate_postback(page, target, argument=""):

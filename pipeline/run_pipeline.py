@@ -22,7 +22,6 @@ def main():
     
     # Step 1: Crawl listings
     print("\n=== Step 1: Crawling tender listings ===")
-    url = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
     tenders = crawl_all_tenders(url)
     print(f"Crawled {len(tenders)} tenders")
     

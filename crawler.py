@@ -10,19 +10,25 @@ URL = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
 
 def simulate_postback(page, target, argument=""):
     print(f"Executing postback: target={target}, argument={argument}")
-    
-    # Execute the postback
+
+    old_url = page.url
+
     page.evaluate(f"__doPostBack('{target}','{argument}')")
-    
-    # Wait for navigation to complete
-    page.wait_for_load_state("networkidle")
-    
+
+    try:
+        page.wait_for_url(lambda url: url != old_url, timeout=5000)
+        print("Navigation happened")
+    except:
+        print("No navigation, waiting for DOM update")
+        page.wait_for_load_state("networkidle")
+
     import time
     time.sleep(1)
-    
+
     html = page.content()
-    print(f"Got HTML content, length: {len(html)}")
-    return html
+    real_url = page.url
+
+    return html, real_url
 
 
 def extract_postback_target(link):

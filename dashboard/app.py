@@ -10,8 +10,8 @@ def load_scored_tenders(filename: str):
     tenders = []
     with open(filename, "r", encoding="utf-8") as f:
         lines = f.readlines()
-        # process all lines
-        for line in lines:
+        # skip metadata line
+        for line in lines[1:]:
             if line.strip():
                 tenders.append(json.loads(line))
     return tenders

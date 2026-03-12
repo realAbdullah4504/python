@@ -7,36 +7,28 @@ from typing import List, Dict, Optional, Tuple
 
 URL = "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
 
-def simulate_postback(page, target: str, argument: str = "") -> Tuple[str, str]:
-    """Execute ASP.NET postback and return HTML content and real URL"""
+
+def simulate_postback(page, target, argument=""):
     print(f"Executing postback: target={target}, argument={argument}")
 
-    # Execute the postback with navigation expectation
-    with page.expect_navigation():
-        page.evaluate(f"__doPostBack('{target}','{argument}')")
-    
-    # Wait for navigation to complete
-    page.wait_for_load_state("networkidle")
-    
-    # Add a small delay to ensure content is fully loaded
+    old_url = page.url
+
+    page.evaluate(f"__doPostBack('{target}','{argument}')")
+
+    try:
+        page.wait_for_url(lambda url: url != old_url, timeout=5000)
+        print("Navigation happened")
+    except:
+        print("No navigation, waiting for DOM update")
+        page.wait_for_load_state("networkidle")
+
     import time
-    time.sleep(2)
-    
-    # Get current URL after navigation
+    time.sleep(1)
+
+    html = page.content()
     real_url = page.url
-    print(f"Resolved real URL: {real_url}")
-    
-    # Try to get content with retry logic
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            html = page.content()
-            return html, real_url
-        except Exception as e:
-            if attempt == max_retries - 1:
-                raise e
-            print(f"Retry {attempt + 1}/{max_retries} after error: {e}")
-            time.sleep(1)
+
+    return html, real_url
 
 
 def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
@@ -116,19 +108,18 @@ def fallback_to_postback(detail_page, target: str) -> None:
 def process_single_tender(context, source_url: str, tender: Dict) -> Dict:
     """Process a single tender and return the enriched tender data"""
     target = tender["details_url"]
+    argument = tender["pagination_argument"]
     
     # Open new page for each detail
     detail_page = context.new_page()
     detail_page.goto(source_url)
     detail_page.wait_for_load_state("networkidle")
     
-    # Try direct click first, fallback to postback
-    # if not try_direct_click(detail_page, target):
-    simulate_postback(detail_page, tender["pagination_target"],tender["page_no"])
-    html,real_url=simulate_postback(detail_page, target)
+    # First navigate to the correct page
+    simulate_postback(detail_page, tender["pagination_target"], argument)
+    # Then fetch the tender detail
+    html, real_url = simulate_postback(detail_page, target)
     print(real_url)
-    
-    detail_page.wait_for_load_state("networkidle")
     
     # Extract full text and update tender
     full_text = extract_full_text_from_page(html)

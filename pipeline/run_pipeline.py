@@ -6,6 +6,7 @@ Main pipeline script to run the complete tender analysis workflow.
 import sys
 import os
 from pathlib import Path
+import json
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -14,6 +15,11 @@ sys.path.insert(0, str(project_root))
 from crawlers.crawl_listings import crawl_all_tenders
 from crawlers.crawl_details import process_tenders, load_tenders_from_ndjson
 from analysis.analyze_pci import main as analyze_main
+
+with open("config/portals.json") as f:
+    config = json.load(f)
+
+url = config["portals"][0]["url"]
 
 
 def main():

@@ -7,14 +7,29 @@ import json
 # Load scored tenders from NDJSON
 # ------------------------------
 def load_scored_tenders(filename: str):
-    tenders = []
-    with open(filename, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-        # skip metadata line
-        for line in lines[1:]:
-            if line.strip():
-                tenders.append(json.loads(line))
-    return tenders
+    try:
+        tenders = []
+        with open(filename, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+            # skip metadata line
+            for line in lines:
+                if line.strip():
+                    tenders.append(json.loads(line))
+        
+        if not tenders:
+            st.warning("No tender data found in the file.")
+            return []
+        
+        return tenders
+    except FileNotFoundError:
+        st.error(f"Data file '{filename}' not found. Please run the pipeline first to generate scored tenders.")
+        return []
+    except json.JSONDecodeError:
+        st.error(f"Error parsing data file '{filename}'. The file may be corrupted.")
+        return []
+    except Exception as e:
+        st.error(f"Unexpected error loading data: {str(e)}")
+        return []
 
 # ------------------------------
 # Convert to DataFrame for display
@@ -41,6 +56,10 @@ st.title("Tender PCI Compliance Dashboard")
 # Load data
 scored_file = "outputs/scored_tenders.ndjson"
 tenders = load_scored_tenders(scored_file)
+
+if not tenders:
+    st.stop()  # Stop the app if no data loaded
+
 df = tenders_to_df(tenders)
 
 # Sidebar filters
@@ -59,9 +78,12 @@ if keyword_filter.strip():
         )
     ]
 
-# Display table
-st.dataframe(filtered_df, use_container_width=True)
-
-# Download button
-csv = filtered_df.to_csv(index=False)
-st.download_button("Download Filtered CSV", csv, "tenders_filtered.csv", "text/csv")
+# Display results
+if filtered_df.empty:
+    st.info("No tenders match the current filters. Try adjusting the filters or check if data is available.")
+else:
+    st.dataframe(filtered_df, use_container_width=True)
+    
+    # Download button (only show if there's data)
+    csv = filtered_df.to_csv(index=False)
+    st.download_button("Download Filtered CSV", csv, "tenders_filtered.csv", "text/csv")

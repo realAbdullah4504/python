@@ -11,27 +11,41 @@ with open("config/portals.json") as f:
 URL = config["portals"][0]["url"]
 
 
-def simulate_postback(page, target, argument=""):
+def simulate_postback(page, target, argument="", retries=3):
     print(f"Executing postback: target={target}, argument={argument}")
 
-    old_url = page.url
+    for attempt in range(1, retries + 1):
+        try:
+            print(f"Attempt {attempt}/{retries}")
 
-    page.evaluate(f"__doPostBack('{target}','{argument}')")
+            old_url = page.url
 
-    try:
-        page.wait_for_url(lambda url: url != old_url, timeout=5000)
-        print("Navigation happened")
-    except Exception as e:
-        print(f"No navigation, waiting for DOM update: {e}")
-        page.wait_for_load_state("networkidle")
+            # Execute the postback
+            page.evaluate(f"__doPostBack('{target}','{argument}')")
 
-    import time
-    time.sleep(1)
+            try:
+                page.wait_for_url(lambda url: url != old_url, timeout=5000)
+                print("Navigation happened")
+            except Exception:
+                print("No navigation, waiting for DOM update")
+                page.wait_for_load_state("networkidle")
 
-    html = page.content()
-    real_url = page.url
+            time.sleep(1)
 
-    return html, real_url
+            html = page.content()
+            real_url = page.url
+
+            return html, real_url
+
+        except Exception as e:
+            print(f"Postback failed: {e}")
+
+            if attempt == retries:
+                print("Max retries reached. Raising error.")
+                raise
+
+            print("Retrying...\n")
+            time.sleep(2)
 
 
 def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[Dict]:

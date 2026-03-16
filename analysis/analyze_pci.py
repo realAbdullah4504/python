@@ -1,3 +1,4 @@
+from ast import Dict
 import json
 import unicodedata
 import re
@@ -5,6 +6,7 @@ import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent)) 
 from config.keywords_pci_dss_americas import SCORING_CONFIG, PCI_COMPLIANCE_SIGNALS
+from datetime import datetime
 
 import json
 
@@ -68,7 +70,7 @@ def score_tender(text: str) -> dict:
 # ------------------------------
 # File Utilities
 # ------------------------------
-def load_enriched_tenders(filename: str) -> tuple:
+def load_enriched_tenders(filename: str) -> list[Dict]:
     """Load enriched NDJSON (skip metadata line)."""
     tenders = []
 
@@ -77,6 +79,11 @@ def load_enriched_tenders(filename: str) -> tuple:
         for line in lines:
             if line.strip():
                 tenders.append(json.loads(line))
+    # Sort tenders by created_at (latest first)
+    tenders.sort(
+        key=lambda x: datetime.fromisoformat(x["created_at"]),
+        reverse=True
+    )
     return tenders
 
 

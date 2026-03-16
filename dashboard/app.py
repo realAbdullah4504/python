@@ -2,6 +2,7 @@
 import streamlit as st
 import pandas as pd
 import json
+from datetime import datetime
 
 # ------------------------------
 # Load scored tenders from NDJSON
@@ -15,6 +16,12 @@ def load_scored_tenders(filename: str):
             for line in lines:
                 if line.strip():
                     tenders.append(json.loads(line))
+        
+        # Sort tenders by created_at (latest first)
+        tenders.sort(
+            key=lambda x: datetime.fromisoformat(x["created_at"]),
+            reverse=True
+        )
         
         if not tenders:
             st.warning("No tender data found in the file.")

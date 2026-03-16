@@ -13,9 +13,10 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from crawlers.crawl_listings import crawl_all_tenders
-from crawlers.crawl_details import process_tenders, load_tenders_from_ndjson
+from crawlers.crawl_details import load_tenders_from_ndjson, process_tenders, load_processed_tenders_from_ndjson
 from analysis.analyze_pci import main as analyze_main
 
+# Load configuration
 with open("config/portals.json") as f:
     config = json.load(f)
 
@@ -29,13 +30,18 @@ def main():
     # Step 1: Crawl listings
     print("\n=== Step 1: Crawling tender listings ===")
     tenders = crawl_all_tenders(url)
-    print(f"Crawled {len(tenders)} tenders")
+    print(f"Crawled {len(tenders)} tenders from listings")
     
     # Step 2: Crawl details
     print("\n=== Step 2: Crawling tender details ===")
     loaded_tenders = load_tenders_from_ndjson()
     if loaded_tenders:
-        process_tenders(loaded_tenders, url, len(loaded_tenders))
+        # Load already processed tenders to avoid reprocessing
+        processed_tenders_numbers = load_processed_tenders_from_ndjson()
+        
+        # Process all tenders (or limit to specific number if needed)
+        max_tenders = len(loaded_tenders)
+        process_tenders(loaded_tenders, url, max_tenders, list(processed_tenders_numbers))
         print(f"Processed details for {len(loaded_tenders)} tenders")
     else:
         print("No tenders found to process details")
@@ -48,9 +54,9 @@ def main():
     
     print("\n=== Pipeline completed successfully ===")
     print("Files generated:")
-    print("- outputs/tenders.ndjson")
-    print("- outputs/enriched_tenders.ndjson") 
-    print("- outputs/scored_tenders.ndjson")
+    print("- outputs/tenders.ndjson (raw tender listings)")
+    print("- outputs/enriched_tenders.ndjson (tenders with full text details)") 
+    print("- outputs/scored_tenders.ndjson (tenders with PCI compliance scores)")
 
 
 if __name__ == "__main__":

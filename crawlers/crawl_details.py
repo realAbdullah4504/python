@@ -4,6 +4,7 @@ import re
 import json
 from typing import List, Dict, Optional, Tuple
 import time
+from datetime import datetime
 
 
 with open("config/portals.json") as f:
@@ -50,17 +51,21 @@ def simulate_postback(page, target, argument="", retries=3):
 
 
 def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
-    """Load tenders from NDJSON file"""
-    tenders = []
+    """Load tenders from NDJSON file and sort by created_at (latest first)"""
     
+    tenders = []
+
     with open(filename, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
-        
-        # Process tender records
-        for line in lines:
+        for line in f:
             if line.strip():
                 tenders.append(json.loads(line))
-    
+
+    # Sort tenders by created_at (latest first)
+    tenders.sort(
+        key=lambda x: datetime.fromisoformat(x["created_at"]),
+        reverse=True
+    )
+
     print(f"Loaded {len(tenders)} tenders from {filename}")
     return tenders
 
@@ -141,13 +146,16 @@ def process_single_tender(context, source_url: str, tender: Dict) -> Dict:
     return tender
 
 
-def process_tenders(tenders: List[Dict], source_url: str, max_tenders: int = 10) -> None:
+def process_tenders(tenders: List[Dict], source_url: str, max_tenders: int = 10, processed_tenders_numbers: List[str] = []) -> None:
     """Process multiple tenders and save enriched data"""
     playwright, browser, context = setup_browser_context()
     
     try:
         for tender in tenders[:max_tenders]:
             try:
+                if tender["number"] in processed_tenders_numbers:
+                    print(f"Skipping already processed tender: {tender['number']}")
+                    continue
                 enriched_tender = process_single_tender(context, source_url, tender)
                 save_enriched_tender(enriched_tender)
                 print(f"Processed: {enriched_tender['number']}")
@@ -178,12 +186,9 @@ def main() -> None:
         print("No tenders found in NDJSON file")
         return
     
-    # Filter out already processed tenders
-    tenders = [tender for tender in tenders if tender["number"] not in processed_tenders_numbers]
-    
     # Process all tenders, but limit to the number of tenders
     max_tenders = len(tenders)
-    process_tenders(tenders, URL, max_tenders)
+    process_tenders(tenders, URL, max_tenders,processed_tenders_numbers)
     print(f"Completed processing {min(len(tenders), max_tenders)} tenders")
 
 

@@ -87,6 +87,24 @@ def save_scored_tenders(tenders: list, filename: str):
             json.dump(tender, f, ensure_ascii=False)
             f.write("\n")
 
+def load_processed_tenders_from_ndjson(filename: str = "outputs/pci_tenders.ndjson") -> set[str]:
+    """Load processed tenders from NDJSON file"""
+    existing_numbers = set()
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            
+            # Process tender records
+            for line in lines:
+                if line.strip():
+                    data = json.loads(line)
+                    existing_numbers.add(data.get('number'))
+        
+    except FileNotFoundError:
+        print(f"File {filename} not found. Starting with empty set.")
+    
+    print(f"Loaded {len(existing_numbers)} processed tenders from {filename}")
+    return existing_numbers
 
 # ------------------------------
 # Main Workflow
@@ -96,9 +114,13 @@ def main():
     scored_tenders_file = "outputs/scored_tenders.ndjson"
 
     tenders = load_enriched_tenders(enriched_tenders_file)
+    processed_tenders = load_processed_tenders_from_ndjson()
+    
 
     scored_tenders = []
     for tender in tenders:
+        if tender["number"] in processed_tenders:
+            continue
         full_text = tender.get("full_text", "")
         enrichment = score_tender(full_text)
         tender.update(enrichment)

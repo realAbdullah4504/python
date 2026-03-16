@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 from typing import List, Dict, Optional, Tuple, Set
+from datetime import datetime
 
 with open("config/portals.json") as f:
     config = json.load(f)
@@ -155,6 +156,8 @@ def load_existing_tender_numbers(filename: str = "outputs/tenders.ndjson") -> Se
 def save_tender_to_ndjson(tender: Dict, filename: str = "outputs/tenders.ndjson") -> bool:
     """Save a single tender to NDJSON file (append mode)"""
     try:
+        # Add creation date time to the tender
+        tender["created_at"] = datetime.now().isoformat()
         with open(filename, 'a', encoding='utf-8') as f:
             json.dump(tender, f, ensure_ascii=False)
             f.write('\n')

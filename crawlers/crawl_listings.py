@@ -9,7 +9,7 @@ from datetime import datetime
 with open("config/portals.json") as f:
     config = json.load(f)
 
-URL = config["portals"][0]["url"]
+URL = config["portals"][0]["listing_urls"][0]
 
 def simulate_postback(page, target: str, argument: str = "") -> str:
     """Simulate a postback event on the page"""
@@ -63,7 +63,7 @@ def extract_pagination_links(soup: BeautifulSoup) -> List[Dict]:
     return pagination_links
 
 
-def extract_listing_rows(soup: BeautifulSoup, page_no: int = 1, pagination_target: str = "", pagination_argument: str = "") -> List[Dict]:
+def extract_listing_rows(soup: BeautifulSoup,url:str, page_no: int = 1, pagination_target: str = "", pagination_argument: str = "") -> List[Dict]:
     """Extract tender listing rows from the page"""
     tenders = []
 
@@ -99,6 +99,7 @@ def extract_listing_rows(soup: BeautifulSoup, page_no: int = 1, pagination_targe
             "type": cells[2].get_text(strip=True),
             "date": cells[3].get_text(strip=True),
             "status": cells[4].get_text(strip=True),
+            "url":url,
             "details_url": target,
             "page_no": page_no,
             "pagination_target": pagination_target,
@@ -214,7 +215,7 @@ def crawl_all_tenders(url: str) -> List[Dict]:
         # Process first page
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
-        tenders = extract_listing_rows(soup, page_no=1)
+        tenders = extract_listing_rows(soup,url, page_no=1)
         
         new_count = process_page_tenders(tenders, seen_tender_numbers)
         all_tenders.extend([t for t in tenders if t["number"] in seen_tender_numbers])
@@ -245,7 +246,8 @@ def crawl_all_tenders(url: str) -> List[Dict]:
             soup = BeautifulSoup(html, "html.parser")
             
             tenders = extract_listing_rows(
-                soup, 
+                soup,
+                url,
                 page_no=current_page,
                 pagination_target=next_link["target"],
                 pagination_argument=next_link["argument"]

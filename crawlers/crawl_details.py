@@ -10,7 +10,7 @@ from datetime import datetime
 with open("config/portals.json") as f:
     config = json.load(f)
 
-URL = config["portals"][0]["url"]
+URL = config["portals"][0]["listing_urls"][0]
 
 
 def simulate_postback(page, target, argument="", retries=3):

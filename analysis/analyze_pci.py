@@ -13,7 +13,7 @@ import json
 with open("config/portals.json") as f:
     config = json.load(f)
 
-URL = config["portals"][0]["url"]
+URL = config["portals"][0]["listing_urls"][0]
 
 # ------------------------------
 # Text Utilities

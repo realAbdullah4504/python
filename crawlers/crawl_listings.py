@@ -6,6 +6,11 @@ import json
 from typing import List, Dict, Optional, Tuple, Set
 from datetime import datetime
 
+with open("config/portals.json") as f:
+    config = json.load(f)
+
+URL = config["portals"][0]["listing_urls"][0]
+
 def simulate_postback(page, target: str, argument: str = "") -> str:
     """Simulate a postback event on the page"""
     print(f"Executing postback: target={target}, argument={argument}")
@@ -218,46 +223,46 @@ def crawl_all_tenders(url: str) -> List[Dict]:
         
         current_page = 1
         
-        # while True:
-        #     pagination_links = extract_pagination_links(soup)
-        #     next_link = find_next_pagination_link(pagination_links, current_page)
+        while True:
+            pagination_links = extract_pagination_links(soup)
+            next_link = find_next_pagination_link(pagination_links, current_page)
             
-        #     if not next_link:
-        #         print(f"No more pages found after page {current_page}")
-        #         break
+            if not next_link:
+                print(f"No more pages found after page {current_page}")
+                break
             
-        #     # Update current page number
-        #     if next_link["page_no"] == "...":
-        #         match = re.search(r'Page\$(\d+)', next_link["argument"], re.IGNORECASE)
-        #         if match:
-        #             current_page = int(match.group(1))
-        #     else:
-        #         current_page += 1
+            # Update current page number
+            if next_link["page_no"] == "...":
+                match = re.search(r'Page\$(\d+)', next_link["argument"], re.IGNORECASE)
+                if match:
+                    current_page = int(match.group(1))
+            else:
+                current_page += 1
             
-        #     print(f"Crawling page: {current_page}")
+            print(f"Crawling page: {current_page}")
             
-        #     # Navigate to next page
-        #     html = simulate_postback(page, next_link["target"], next_link["argument"])
-        #     soup = BeautifulSoup(html, "html.parser")
+            # Navigate to next page
+            html = simulate_postback(page, next_link["target"], next_link["argument"])
+            soup = BeautifulSoup(html, "html.parser")
             
-        #     tenders = extract_listing_rows(
-        #         soup,
-        #         url,
-        #         page_no=current_page,
-        #         pagination_target=next_link["target"],
-        #         pagination_argument=next_link["argument"]
-        #     )
+            tenders = extract_listing_rows(
+                soup,
+                url,
+                page_no=current_page,
+                pagination_target=next_link["target"],
+                pagination_argument=next_link["argument"]
+            )
             
-        #     if not tenders:
-        #         break
+            if not tenders:
+                break
             
-        #     new_count = process_page_tenders(tenders, seen_tender_numbers)
-        #     all_tenders.extend([t for t in tenders if t["number"] in seen_tender_numbers])
-        #     print(f"Added {new_count} new tenders from page {current_page}")
+            new_count = process_page_tenders(tenders, seen_tender_numbers)
+            all_tenders.extend([t for t in tenders if t["number"] in seen_tender_numbers])
+            print(f"Added {new_count} new tenders from page {current_page}")
             
-        #     if new_count == 0:
-        #         print("No new tenders found, stopping crawl")
-        #         break
+            if new_count == 0:
+                print("No new tenders found, stopping crawl")
+                break
     
     finally:
         cleanup_browser_resources(playwright, browser)

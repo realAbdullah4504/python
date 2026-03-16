@@ -26,7 +26,7 @@ def simulate_postback(page, target, argument="", retries=3):
             page.evaluate(f"__doPostBack('{target}','{argument}')")
 
             try:
-                page.wait_for_url(lambda url: url != old_url, timeout=5000)
+                page.wait_for_url(lambda url, old=old_url: url != old, timeout=5000)
                 print("Navigation happened")
             except Exception:
                 print("No navigation, waiting for DOM update")

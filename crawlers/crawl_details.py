@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import json
 from typing import List, Dict, Optional, Tuple
+import time
 
 
 with open("config/portals.json") as f:
@@ -49,7 +50,7 @@ def simulate_postback(page, target, argument="", retries=3):
 
 
 def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
-    """Load tenders from NDJSON file, skipping metadata line"""
+    """Load tenders from NDJSON file"""
     tenders = []
     
     with open(filename, 'r', encoding='utf-8') as f:
@@ -62,6 +63,25 @@ def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[D
     
     print(f"Loaded {len(tenders)} tenders from {filename}")
     return tenders
+
+def load_processed_tenders_from_ndjson(filename: str = "outputs/enriched_tenders.ndjson") -> set[str]:
+    """Load processed tenders from NDJSON file"""
+    existing_numbers = set()
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+            
+            # Process tender records
+            for line in lines:
+                if line.strip():
+                    data = json.loads(line)
+                    existing_numbers.add(data.get('number'))
+        
+    except FileNotFoundError:
+        print(f"File {filename} not found. Starting with empty set.")
+    
+    print(f"Loaded {len(existing_numbers)} processed tenders from {filename}")
+    return existing_numbers
 
 
 def save_enriched_tender(tender: Dict, filename: str = "outputs/enriched_tenders.ndjson") -> None:
@@ -152,10 +172,14 @@ def main() -> None:
     """Main function to orchestrate the tender processing workflow"""
     # Load tenders and URL from NDJSON
     tenders = load_tenders_from_ndjson()
+    processed_tenders_numbers=load_processed_tenders_from_ndjson()
     
     if not tenders:
         print("No tenders found in NDJSON file")
         return
+    
+    # Filter out already processed tenders
+    tenders = [tender for tender in tenders if tender["number"] not in processed_tenders_numbers]
     
     # Process all tenders, but limit to the number of tenders
     max_tenders = len(tenders)

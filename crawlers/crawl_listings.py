@@ -138,6 +138,19 @@ def navigate_to_main_page(context, url: str):
     page.wait_for_load_state("networkidle")
     return page
 
+def load_existing_tender_numbers(filename: str = "outputs/tenders.ndjson") -> Set[str]:
+    """Load existing tender numbers from NDJSON file"""
+    existing_numbers = set()
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    data = json.loads(line)
+                    if "number" in data:
+                        existing_numbers.add(data["number"])
+    except FileNotFoundError:
+        pass
+    return existing_numbers
 
 def save_tender_to_ndjson(tender: Dict, filename: str = "outputs/tenders.ndjson") -> bool:
     """Save a single tender to NDJSON file (append mode)"""
@@ -203,7 +216,7 @@ def cleanup_browser_resources(playwright, browser) -> None:
 def crawl_all_tenders(url: str) -> List[Dict]:
     """Crawl all tenders from the given URL"""
     all_tenders = []
-    seen_tender_numbers = set()
+    seen_tender_numbers = load_existing_tender_numbers()
 
     playwright, browser, context = setup_browser_context()
     

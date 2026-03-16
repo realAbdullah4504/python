@@ -165,14 +165,39 @@ total_score = (primary_signals * 2.0) +
 {
   "portals": [
     {
-      "name": "Government Portal",
-      "country": "US",
+      "name": "Comprar Gob AR",
+      "country": "Argentina",
+      "type": "national",
       "active": true,
-      "listing_urls": ["https://portal.com/tenders"]
+      "listing_urls": [
+        "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10="
+      ],
+      "selectors": {
+        "main_table": "table",
+        "table_body": "tbody",
+        "table_row": "tr",
+        "header_row_class": "tr-header",
+        "pagination_row_class": "pagination-gv",
+        "link": "a",
+        "table_cell": "td"
+      },
+      "column_mapping": {
+        "number": 0,
+        "description": 1,
+        "type": 2,
+        "date": 3,
+        "status": 4
+      }
     }
   ]
 }
 ```
+
+**Configuration Features**:
+- **Selectors**: CSS selectors for HTML element identification
+- **Column Mapping**: Field-to-index mapping for table data extraction
+- **Portal Metadata**: Country, type, and activation status
+- **URL Management**: Multiple listing URLs per portal
 
 **PCI Keywords** (`config/keywords_pci_dss_americas.py`):
 - Primary and secondary signal definitions
@@ -244,9 +269,22 @@ total_score = (primary_signals * 2.0) +
 ## Extension Points
 
 ### Adding New Portals
-1. Update `config/portals.json`
-2. Test postback mechanisms
-3. Adjust extraction patterns if needed
+
+1. **Update `config/portals.json`**:
+   - Add new portal configuration with required metadata
+   - Define CSS selectors for HTML element identification
+   - Configure column mapping for data extraction
+   - Set listing URLs and activation status
+
+2. **Test Portal Integration**:
+   - Verify selector patterns work with target portal
+   - Test postback mechanisms for navigation
+   - Validate column mapping matches table structure
+
+3. **Adjust Extraction Patterns** (if needed):
+   - Modify selectors for portal-specific HTML structure
+   - Update column mapping for different table layouts
+   - Add portal-specific handling if required
 
 ### Enhancing PCI Detection
 1. Update `keywords_pci_dss_americas.py`

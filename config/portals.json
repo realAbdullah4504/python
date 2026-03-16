@@ -8,7 +8,23 @@
       "listing_urls": [
         "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=",
         "https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs="
-      ]
+      ],
+      "selectors": {
+        "main_table": "table",
+        "table_body": "tbody",
+        "table_row": "tr",
+        "header_row_class": "tr-header",
+        "pagination_row_class": "pagination-gv",
+        "link": "a",
+        "table_cell": "td"
+      },
+      "column_mapping": {
+        "number": 0,
+        "description": 1,
+        "type": 2,
+        "date": 3,
+        "status": 4
+      }
     }
   ]
 }

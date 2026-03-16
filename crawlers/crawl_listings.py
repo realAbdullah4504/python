@@ -10,6 +10,8 @@ with open("config/portals.json") as f:
     config = json.load(f)
 
 URL = config["portals"][0]["listing_urls"][0]
+SELECTORS = config["portals"][0]["selectors"]
+COLUMN_MAPPING = config["portals"][0]["column_mapping"]
 
 def simulate_postback(page, target: str, argument: str = "") -> str:
     """Simulate a postback event on the page"""
@@ -42,14 +44,14 @@ def extract_postback_target(link) -> Tuple[Optional[str], Optional[str]]:
 
 def extract_pagination_links(soup: BeautifulSoup) -> List[Dict]:
     """Extract pagination links from the page"""
-    table = soup.find("table")
+    table = soup.find(SELECTORS["main_table"])
     if not table:
         return []
 
     pagination_links = []
 
-    for row in table.find_all("tr", class_="pagination-gv"):
-        for link in row.find_all("a"):
+    for row in table.find_all(SELECTORS["table_row"], class_=SELECTORS["pagination_row_class"]):
+        for link in row.find_all(SELECTORS["link"]):
 
             target, argument = extract_postback_target(link)
 
@@ -67,38 +69,38 @@ def extract_listing_rows(soup: BeautifulSoup,url:str, page_no: int = 1, paginati
     """Extract tender listing rows from the page"""
     tenders = []
 
-    table = soup.find("table")
+    table = soup.find(SELECTORS["main_table"])
     if not table:
         return tenders
 
-    tbody = table.find("tbody")
+    tbody = table.find(SELECTORS["table_body"])
     if not tbody:
         return tenders
 
-    rows = tbody.find_all("tr", recursive=False)
+    rows = tbody.find_all(SELECTORS["table_row"], recursive=False)
 
     for row in rows:
 
-        if "tr-header" in (row.get("class") or []):
+        if SELECTORS["header_row_class"] in (row.get("class") or []):
             continue
 
-        if "pagination-gv" in (row.get("class") or []):
+        if SELECTORS["pagination_row_class"] in (row.get("class") or []):
             continue
 
-        cells = row.find_all("td")
+        cells = row.find_all(SELECTORS["table_cell"])
 
         if len(cells) < 5:
             continue
 
-        link = cells[0].find("a")
+        link = cells[COLUMN_MAPPING["number"]].find(SELECTORS["link"])
         target, _ = extract_postback_target(link) if link else (None, None)
         # print(link, target)
         tender = {
-            "number": cells[0].get_text(strip=True),
-            "description": cells[1].get_text(strip=True),
-            "type": cells[2].get_text(strip=True),
-            "date": cells[3].get_text(strip=True),
-            "status": cells[4].get_text(strip=True),
+            "number": cells[COLUMN_MAPPING["number"]].get_text(strip=True),
+            "description": cells[COLUMN_MAPPING["description"]].get_text(strip=True),
+            "type": cells[COLUMN_MAPPING["type"]].get_text(strip=True),
+            "date": cells[COLUMN_MAPPING["date"]].get_text(strip=True),
+            "status": cells[COLUMN_MAPPING["status"]].get_text(strip=True),
             "url":url,
             "details_url": target,
             "page_no": page_no,

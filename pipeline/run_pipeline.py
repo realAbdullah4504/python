@@ -20,17 +20,47 @@ from analysis.analyze_pci import main as analyze_main
 with open("config/portals.json") as f:
     config = json.load(f)
 
-url = config["portals"][0]["listing_urls"][0]
+
+def crawl_all_portals():
+    """Crawl tenders from all active portals and their listing URLs"""
+    all_tenders = []
+    
+    for portal in config["portals"]:
+        if not portal.get("active", True):
+            print(f"Skipping inactive portal: {portal['name']}")
+            continue
+            
+        print(f"\n--- Processing portal: {portal['name']} ({portal['country']}) ---")
+        
+        for url in portal["listing_urls"]:
+            print(f"Crawling URL: {url}")
+            try:
+                tenders = crawl_all_tenders(url)
+                print(f"Crawled {len(tenders)} tenders from {url}")
+                all_tenders.extend(tenders)
+            except Exception as e:
+                print(f"Error crawling {url}: {e}")
+                continue
+    
+    return all_tenders
+
+
+def get_first_active_portal_url():
+    """Get the first listing URL from active portals"""
+    for portal in config["portals"]:
+        if portal.get("active", True) and portal.get("listing_urls"):
+            return portal["listing_urls"][0]
+    return None
 
 
 def main():
     """Run the complete pipeline"""
     print("Starting tender analysis pipeline...")
     
-    # Step 1: Crawl listings
+    # Step 1: Crawl listings from all portals
     print("\n=== Step 1: Crawling tender listings ===")
-    tenders = crawl_all_tenders(url)
-    print(f"Crawled {len(tenders)} tenders from listings")
+    tenders = crawl_all_portals()
+    print(f"Total crawled {len(tenders)} tenders from all portals")
     
     # Step 2: Crawl details
     print("\n=== Step 2: Crawling tender details ===")
@@ -40,8 +70,16 @@ def main():
         processed_tenders_numbers = load_processed_tenders_from_ndjson()
         
         # Process all tenders (or limit to specific number if needed)
-        max_tenders = len(loaded_tenders)
-        process_tenders(loaded_tenders, url, max_tenders, list(processed_tenders_numbers))
+        # max_tenders = len(loaded_tenders)
+        max_tenders = 10
+        
+        # Use the first active portal URL for processing details
+        process_url = get_first_active_portal_url()
+        if not process_url:
+            print("No active portal URLs found for processing details")
+            return
+            
+        process_tenders(loaded_tenders, process_url, max_tenders, list(processed_tenders_numbers))
         print(f"Processed details for {len(loaded_tenders)} tenders")
     else:
         print("No tenders found to process details")

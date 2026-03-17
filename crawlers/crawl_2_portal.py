@@ -1,4 +1,8 @@
-from playwright.sync_api import sync_playwright
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 from typing import Tuple, List, Dict, Optional
 from bs4 import BeautifulSoup
 import re
@@ -6,29 +10,8 @@ import json
 from datetime import datetime, timezone
 import os
 import requests
-
-def setup_browser_context(headless: bool = True) -> Tuple:
-    """Setup and return browser context and main page"""
-    playwright = sync_playwright().start()
-    browser = playwright.chromium.launch(headless=headless)
-    context = browser.new_context()
-    return playwright, browser, context
-
-
-def open_page(url: str):
-    """Open a page in the browser"""
-    playwright, browser, context = setup_browser_context()
-    page = context.new_page()
-    page.goto(url)
-    page.wait_for_load_state("networkidle")
-    return page
-
-
-def load_portal_config(config_path: str = "config/portals.json") -> Dict:
-    """Load portal configuration from JSON file."""
-    with open(config_path, 'r', encoding='utf-8') as f:
-        config = json.load(f)
-    return config
+from utils.playwright_utils import setup_browser_context, open_page
+from utils.file_utils import load_portal_config, save_tenders_to_json, ensure_output_directory
 
 
 def get_portal_by_url(portals: List[Dict], url: str) -> Optional[Dict]:
@@ -248,7 +231,7 @@ def crawl_all_pages(base_url: str, portal_config: Dict, patterns: Dict, output_f
     max_pages = pagination_config.get('max_pages', 50)
     
     # Create output directory
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    ensure_output_directory(output_file)
     
     for page in range(1, max_pages + 1):
         print("Fetching page {}...".format(page))
@@ -281,8 +264,7 @@ def crawl_all_pages(base_url: str, portal_config: Dict, patterns: Dict, output_f
         
         # Save after each page is processed
         print("Saving {} tenders from page {}...".format(len(page_tenders), page))
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(all_tenders, f, ensure_ascii=False, indent=2)
+        save_tenders_to_json(all_tenders, output_file)
         
         print("Total tenders so far: {}".format(len(all_tenders)))
         
@@ -365,9 +347,8 @@ def crawl_all_tenders(url: str, output_file: str = "tenders_crawled.json") -> Li
                 parsed_tenders.append(tender)
     
     # Save to file
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w', encoding='utf-8') as f:
-        json.dump(parsed_tenders, f, ensure_ascii=False, indent=2)
+    ensure_output_directory(output_file)
+    save_tenders_to_json(parsed_tenders, output_file)
     
     print("Found and parsed {} tenders".format(len(parsed_tenders)))
     return parsed_tenders

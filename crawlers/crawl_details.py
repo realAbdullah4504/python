@@ -1,116 +1,21 @@
-from playwright.sync_api import sync_playwright
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from bs4 import BeautifulSoup
 import re
 import json
 from typing import List, Dict, Optional, Tuple
 import time
 from datetime import datetime
+from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback_with_retry, cleanup_browser_resources
+from utils.file_utils import load_tenders_from_ndjson, load_processed_tenders_from_ndjson, save_enriched_tender
 
 
 with open("config/portals.json") as f:
     config = json.load(f)
 
 URL = config["portals"][0]["listing_urls"][0]
-
-
-def simulate_postback(page, target, argument="", retries=3):
-    print(f"Executing postback: target={target}, argument={argument}")
-
-    for attempt in range(1, retries + 1):
-        try:
-            print(f"Attempt {attempt}/{retries}")
-
-            old_url = page.url
-
-            # Execute the postback
-            page.evaluate(f"__doPostBack('{target}','{argument}')")
-
-            try:
-                page.wait_for_url(lambda url, old=old_url: url != old, timeout=5000)
-                print("Navigation happened")
-            except Exception:
-                print("No navigation, waiting for DOM update")
-                page.wait_for_load_state("networkidle")
-
-            time.sleep(1)
-
-            html = page.content()
-            real_url = page.url
-
-            return html, real_url
-
-        except Exception as e:
-            print(f"Postback failed: {e}")
-
-            if attempt == retries:
-                print("Max retries reached. Raising error.")
-                raise
-
-            print("Retrying...\n")
-            time.sleep(2)
-
-
-def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
-    """Load tenders from NDJSON file and sort by created_at (latest first)"""
-    
-    tenders = []
-
-    with open(filename, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                tenders.append(json.loads(line))
-
-    # Sort tenders by created_at (latest first)
-    tenders.sort(
-        key=lambda x: datetime.fromisoformat(x["created_at"]),
-        reverse=True
-    )
-
-    print(f"Loaded {len(tenders)} tenders from {filename}")
-    return tenders
-
-def load_processed_tenders_from_ndjson(filename: str = "outputs/enriched_tenders.ndjson") -> set[str]:
-    """Load processed tenders from NDJSON file"""
-    existing_numbers = set()
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            
-            # Process tender records
-            for line in lines:
-                if line.strip():
-                    data = json.loads(line)
-                    existing_numbers.add(data.get('number'))
-        
-    except FileNotFoundError:
-        print(f"File {filename} not found. Starting with empty set.")
-    
-    print(f"Loaded {len(existing_numbers)} processed tenders from {filename}")
-    return existing_numbers
-
-
-def save_enriched_tender(tender: Dict, filename: str = "outputs/enriched_tenders.ndjson") -> None:
-    """Save enriched tender to NDJSON file"""
-    with open(filename, 'a', encoding='utf-8') as f:
-        json.dump(tender, f, ensure_ascii=False)
-        f.write('\n')
-        f.flush()  # Ensure immediate write to disk
-
-
-def setup_browser_context(headless: bool = True) -> Tuple:
-    """Setup and return browser context and main page"""
-    playwright = sync_playwright().start()
-    browser = playwright.chromium.launch(headless=headless)
-    context = browser.new_context()
-    return playwright, browser, context
-
-
-def navigate_to_main_page(context, source_url: str):
-    """Navigate to the main listing page and return the page object"""
-    main_page = context.new_page()
-    main_page.goto(source_url)
-    main_page.wait_for_load_state("networkidle")
-    return main_page
 
 
 def extract_full_text_from_page(html: str) -> str:
@@ -130,9 +35,9 @@ def process_single_tender(context, source_url: str, tender: Dict) -> Dict:
     detail_page.wait_for_load_state("networkidle")
     
     # First navigate to the correct page
-    simulate_postback(detail_page, tender["pagination_target"], argument)
+    simulate_postback_with_retry(detail_page, tender["pagination_target"], argument)
     # Then fetch the tender detail
-    html, real_url = simulate_postback(detail_page, target)
+    html, real_url = simulate_postback_with_retry(detail_page, target)
     print(real_url)
     
     # Extract full text and update tender
@@ -163,17 +68,7 @@ def process_tenders(tenders: List[Dict], source_url: str, max_tenders: int = 10,
                 print(f"Error processing tender {tender.get('number', 'unknown')}: {e}")
                 continue
     finally:
-        try:
-            browser.close()
-            playwright.stop()
-        except Exception as e:
-            print(f"Warning: Error during browser cleanup: {e}")
-            # Try to force cleanup if normal close fails
-            try:
-                if 'playwright' in locals():
-                    playwright.stop()
-            except:
-                pass
+        cleanup_browser_resources(playwright, browser)
 
 
 def main() -> None:

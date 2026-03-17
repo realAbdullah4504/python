@@ -25,6 +25,36 @@
         "date": 3,
         "status": 4
       }
+    },
+    {
+      "name": "CSJN Adquisiciones",
+      "country": "Argentina",
+      "type": "judicial",
+      "active": true,
+      "listing_urls": [
+        "https://www.csjn.gov.ar/transparencia/adquisiciones-y-contrataciones"
+      ],
+      "selectors": {
+        "excluded_tags": ["script", "style", "nav", "footer", "header"]
+      },
+      "patterns": {
+        "date": "(\\d{1,2}\\s+de\\s+[a-z]+\\s+de\\s+\\d{4})",
+        "expediente": "Expediente:\\s*(\\d+/\\d{4})",
+        "document_type_number": "(?:Informe|Resolución|Disposición|Nota|Memorandum)\\s+(\\d+(?:/\\d{4})?)",
+        "category": "([^-]+(?:\\s*-\\s*[^-]+){2,})$"
+      },
+      "pagination": {
+        "type": "datatables",
+        "endpoint": "/temasGral/dataAdquisiciones",
+        "method": "POST",
+        "headers": {
+          "X-CSRF-TOKEN": "92f60e65-2bac-42a4-bc27-199443bdedba",
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "page_size": 20,
+        "max_pages": 2
+      },
+      "extraction_method": "text_blocks"
     }
   ]
 }

@@ -6,13 +6,6 @@ import json
 from typing import List, Dict, Optional, Tuple, Set
 from datetime import datetime
 
-with open("config/portals.json") as f:
-    config = json.load(f)
-
-URL = config["portals"][0]["listing_urls"][0]
-SELECTORS = config["portals"][0]["selectors"]
-COLUMN_MAPPING = config["portals"][0]["column_mapping"]
-
 def simulate_postback(page, target: str, argument: str = "") -> str:
     """Simulate a postback event on the page"""
     print(f"Executing postback: target={target}, argument={argument}")
@@ -42,16 +35,16 @@ def extract_postback_target(link) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
-def extract_pagination_links(soup: BeautifulSoup) -> List[Dict]:
+def extract_pagination_links(soup: BeautifulSoup, selectors: Dict) -> List[Dict]:
     """Extract pagination links from the page"""
-    table = soup.find(SELECTORS["main_table"])
+    table = soup.find(selectors["main_table"])
     if not table:
         return []
 
     pagination_links = []
 
-    for row in table.find_all(SELECTORS["table_row"], class_=SELECTORS["pagination_row_class"]):
-        for link in row.find_all(SELECTORS["link"]):
+    for row in table.find_all(selectors["table_row"], class_=selectors["pagination_row_class"]):
+        for link in row.find_all(selectors["link"]):
 
             target, argument = extract_postback_target(link)
 
@@ -65,42 +58,42 @@ def extract_pagination_links(soup: BeautifulSoup) -> List[Dict]:
     return pagination_links
 
 
-def extract_listing_rows(soup: BeautifulSoup,url:str, page_no: int = 1, pagination_target: str = "", pagination_argument: str = "") -> List[Dict]:
+def extract_listing_rows(soup: BeautifulSoup, url: str, selectors: Dict, column_mapping: Dict, page_no: int = 1, pagination_target: str = "", pagination_argument: str = "") -> List[Dict]:
     """Extract tender listing rows from the page"""
     tenders = []
 
-    table = soup.find(SELECTORS["main_table"])
+    table = soup.find(selectors["main_table"])
     if not table:
         return tenders
 
-    tbody = table.find(SELECTORS["table_body"])
+    tbody = table.find(selectors["table_body"])
     if not tbody:
         return tenders
 
-    rows = tbody.find_all(SELECTORS["table_row"], recursive=False)
+    rows = tbody.find_all(selectors["table_row"], recursive=False)
 
     for row in rows:
 
-        if SELECTORS["header_row_class"] in (row.get("class") or []):
+        if selectors["header_row_class"] in (row.get("class") or []):
             continue
 
-        if SELECTORS["pagination_row_class"] in (row.get("class") or []):
+        if selectors["pagination_row_class"] in (row.get("class") or []):
             continue
 
-        cells = row.find_all(SELECTORS["table_cell"])
+        cells = row.find_all(selectors["table_cell"])
 
         if len(cells) < 5:
             continue
 
-        link = cells[COLUMN_MAPPING["number"]].find(SELECTORS["link"])
+        link = cells[column_mapping["number"]].find(selectors["link"])
         target, _ = extract_postback_target(link) if link else (None, None)
         # print(link, target)
         tender = {
-            "number": cells[COLUMN_MAPPING["number"]].get_text(strip=True),
-            "description": cells[COLUMN_MAPPING["description"]].get_text(strip=True),
-            "type": cells[COLUMN_MAPPING["type"]].get_text(strip=True),
-            "date": cells[COLUMN_MAPPING["date"]].get_text(strip=True),
-            "status": cells[COLUMN_MAPPING["status"]].get_text(strip=True),
+            "number": cells[column_mapping["number"]].get_text(strip=True),
+            "description": cells[column_mapping["description"]].get_text(strip=True),
+            "type": cells[column_mapping["type"]].get_text(strip=True),
+            "date": cells[column_mapping["date"]].get_text(strip=True),
+            "status": cells[column_mapping["status"]].get_text(strip=True),
             "url":url,
             "details_url": target,
             "page_no": page_no,
@@ -204,7 +197,7 @@ def cleanup_browser_resources(playwright, browser) -> None:
             pass
 
 
-def crawl_all_tenders(url: str) -> List[Dict]:
+def crawl_all_tenders(url: str, selectors: Dict, column_mapping: Dict) -> List[Dict]:
     """Crawl all tenders from the given URL"""
     all_tenders = []
     seen_tender_numbers = load_existing_tender_numbers()
@@ -217,7 +210,7 @@ def crawl_all_tenders(url: str) -> List[Dict]:
         # Process first page
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
-        tenders = extract_listing_rows(soup,url, page_no=1)
+        tenders = extract_listing_rows(soup, url, selectors, column_mapping, page_no=1)
         
         new_count = process_page_tenders(tenders, seen_tender_numbers)
         all_tenders.extend([t for t in tenders if t["number"] in seen_tender_numbers])
@@ -226,7 +219,7 @@ def crawl_all_tenders(url: str) -> List[Dict]:
         current_page = 1
         
         while True:
-            pagination_links = extract_pagination_links(soup)
+            pagination_links = extract_pagination_links(soup, selectors)
             next_link = find_next_pagination_link(pagination_links, current_page)
             
             if not next_link:
@@ -250,6 +243,8 @@ def crawl_all_tenders(url: str) -> List[Dict]:
             tenders = extract_listing_rows(
                 soup,
                 url,
+                selectors,
+                column_mapping,
                 page_no=current_page,
                 pagination_target=next_link["target"],
                 pagination_argument=next_link["argument"]
@@ -274,11 +269,31 @@ def crawl_all_tenders(url: str) -> List[Dict]:
 
 def main() -> None:
     """Main function to orchestrate the tender crawling workflow"""
-    tenders = crawl_all_tenders(URL)
-    print(f"Total tenders found: {len(tenders)}")
+    with open("config/portals.json") as f:
+        config = json.load(f)
+    
+    all_tenders = []
+    
+    # Loop over all portals
+    for portal in config["portals"]:
+        if not portal.get("active", True):
+            print(f"Skipping inactive portal: {portal['name']}")
+            continue
+            
+        print(f"Processing portal: {portal['name']} ({portal['country']})")
+        
+        # Loop over all listing URLs for this portal
+        for url in portal["listing_urls"]:
+            print(f"Crawling URL: {url}")
+            
+            tenders = crawl_all_tenders(url, portal["selectors"], portal["column_mapping"])
+            all_tenders.extend(tenders)
+            print(f"Found {len(tenders)} tenders from {url}")
+    
+    print(f"Total tenders found across all portals: {len(all_tenders)}")
     
     # Display first 5 tenders
-    for t in tenders[:5]:
+    for t in all_tenders[:5]:
         print(t)
 
 

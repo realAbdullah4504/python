@@ -35,7 +35,7 @@ def crawl_all_portals():
         for url in portal["listing_urls"]:
             print(f"Crawling URL: {url}")
             try:
-                tenders = crawl_all_tenders(url)
+                tenders = crawl_all_tenders(url,portal["selectors"], portal["column_mapping"])
                 print(f"Crawled {len(tenders)} tenders from {url}")
                 all_tenders.extend(tenders)
             except Exception as e:

@@ -1,7 +1,3 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from bs4 import BeautifulSoup
 import re
 import json
@@ -9,87 +5,7 @@ from typing import List, Dict, Optional, Tuple, Set
 from datetime import datetime
 from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback, cleanup_browser_resources
 from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson
-
-def extract_postback_target(link) -> Tuple[Optional[str], Optional[str]]:
-    """Extract postback target and argument from a link element"""
-    href = link.get("href", "")
-    match = re.search(r"__doPostBack\('([^']+)','([^']*)'\)", href)
-
-    if match:
-        return match.group(1), match.group(2)
-
-    return None, None
-
-
-def extract_pagination_links(soup: BeautifulSoup, selectors: Dict) -> List[Dict]:
-    """Extract pagination links from the page"""
-    table = soup.find(selectors["main_table"])
-    if not table:
-        return []
-
-    pagination_links = []
-
-    for row in table.find_all(selectors["table_row"], class_=selectors["pagination_row_class"]):
-        for link in row.find_all(selectors["link"]):
-
-            target, argument = extract_postback_target(link)
-
-            if target:
-                pagination_links.append({
-                    "page_no": link.get_text(strip=True),
-                    "target": target,
-                    "argument": argument
-                })
-
-    return pagination_links
-
-
-def extract_listing_rows(soup: BeautifulSoup, url: str, selectors: Dict, column_mapping: Dict, page_no: int = 1, pagination_target: str = "", pagination_argument: str = "") -> List[Dict]:
-    """Extract tender listing rows from the page"""
-    tenders = []
-
-    table = soup.find(selectors["main_table"])
-    if not table:
-        return tenders
-
-    tbody = table.find(selectors["table_body"])
-    if not tbody:
-        return tenders
-
-    rows = tbody.find_all(selectors["table_row"], recursive=False)
-
-    for row in rows:
-
-        if selectors["header_row_class"] in (row.get("class") or []):
-            continue
-
-        if selectors["pagination_row_class"] in (row.get("class") or []):
-            continue
-
-        cells = row.find_all(selectors["table_cell"])
-
-        if len(cells) < 5:
-            continue
-
-        link = cells[column_mapping["number"]].find(selectors["link"])
-        target, _ = extract_postback_target(link) if link else (None, None)
-        # print(link, target)
-        tender = {
-            "number": cells[column_mapping["number"]].get_text(strip=True),
-            "description": cells[column_mapping["description"]].get_text(strip=True),
-            "type": cells[column_mapping["type"]].get_text(strip=True),
-            "date": cells[column_mapping["date"]].get_text(strip=True),
-            "status": cells[column_mapping["status"]].get_text(strip=True),
-            "url":url,
-            "details_url": target,
-            "page_no": page_no,
-            "pagination_target": pagination_target,
-            "pagination_argument": pagination_argument
-        }
-        tenders.append(tender)
-
-    return tenders
-
+from utils.bs4_utils import extract_pagination_links, extract_listing_rows, find_next_pagination_link, extract_postback_target
 
 def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> int:
     """Process tenders from a page and return count of new tenders"""
@@ -100,27 +16,6 @@ def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> 
             save_tender_to_ndjson(tender)
             new_count += 1
     return new_count
-
-
-def find_next_pagination_link(pagination_links: List[Dict], current_page: int) -> Optional[Dict]:
-    """Find the next pagination link to navigate to"""
-    next_page_str = str(current_page + 1)
-    
-    # First try to find exact next page
-    for link in pagination_links:
-        if link["page_no"] == next_page_str:
-            return link
-    
-    # Then try to find ellipsis with higher page number
-    for link in pagination_links:
-        if link["page_no"] == "...":
-            match = re.search(r'Page\$(\d+)', link["argument"], re.IGNORECASE)
-            if match:
-                arg_page = int(match.group(1))
-                if arg_page > current_page:
-                    return link
-    
-    return None
 
 
 def crawl_all_tenders(url: str, selectors: Dict, column_mapping: Dict) -> List[Dict]:

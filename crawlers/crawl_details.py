@@ -1,8 +1,3 @@
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from bs4 import BeautifulSoup
 import re
 import json
 from typing import List, Dict, Optional, Tuple
@@ -10,18 +5,12 @@ import time
 from datetime import datetime
 from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback_with_retry, cleanup_browser_resources
 from utils.file_utils import load_tenders_from_ndjson, load_processed_tenders_from_ndjson, save_enriched_tender
-
+from utils.bs4_utils import extract_full_text_from_page
 
 with open("config/portals.json") as f:
     config = json.load(f)
 
 URL = config["portals"][0]["listing_urls"][0]
-
-
-def extract_full_text_from_page(html: str) -> str:
-    """Extract and clean full text from a page"""
-    soup = BeautifulSoup(html, "html.parser")
-    return soup.get_text(" ", strip=True)
 
 
 def process_single_tender(context, source_url: str, tender: Dict) -> Dict:

@@ -6,8 +6,42 @@ from datetime import datetime, timezone
 import os
 import requests
 from utils.playwright_utils import setup_browser_context, open_page
-from utils.file_utils import load_portal_config, save_tenders_to_json, ensure_output_directory
+from utils.config_resolver import load_config_with_refs, get_portal_config
+from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson, ensure_output_directory
 from utils.bs4_utils import extract_tender_blocks, parse_tender_block, format_tender_item
+
+
+def map_pattern_to_generic_tender(pattern_tender: Dict, portal_name: str, source_url: str) -> Dict:
+    """Map pattern-based tender structure to generic tender structure"""
+    return {
+        "number": pattern_tender.get("expediente", ""),
+        "description": pattern_tender.get("description", ""),
+        "type": pattern_tender.get("document_type", ""),
+        "date": pattern_tender.get("date", ""),
+        "status": "active",  # Default status for pattern-based tenders
+        "url": source_url,
+        "details_url": None,  # Pattern-based tenders don't have details pages
+        "page_no": 1,  # Default page number
+        "portal_name": portal_name,
+        "category": pattern_tender.get("category", ""),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+
+def process_page_tenders(tenders: List[Dict], seen_tender_numbers: set, portal_name: str, source_url: str) -> Tuple[int, List[Dict]]:
+    """Process tenders from a page and return count of new tenders and the new tenders list"""
+    new_count = 0
+    new_tenders = []
+    for tender in tenders:
+        # Map to generic structure
+        generic_tender = map_pattern_to_generic_tender(tender, portal_name, source_url)
+        
+        if generic_tender["number"] not in seen_tender_numbers:
+            seen_tender_numbers.add(generic_tender["number"])
+            save_tender_to_ndjson(generic_tender)
+            new_count += 1
+            new_tenders.append(generic_tender)
+    return new_count, new_tenders
 
 
 def get_portal_by_url(portals: List[Dict], url: str) -> Optional[Dict]:
@@ -109,80 +143,57 @@ def fetch_datatables_page(base_url: str, pagination_config: Dict, page: int = 1,
         return None
 
 
-def crawl_all_pages(base_url: str, portal_config: Dict, patterns: Dict, output_file: str) -> List[Dict]:
-    """
-    Crawl all pages using DataTables pagination with incremental saving.
-    """
-    pagination_config = portal_config.get('pagination', {})
-    if not pagination_config or pagination_config.get('type') != 'datatables':
-        return []
-    
-    all_tenders = []
-    max_pages = pagination_config.get('max_pages', 50)
-    
-    # Create output directory
-    ensure_output_directory(output_file)
-    
-    for page in range(1, max_pages + 1):
-        print("Fetching page {}...".format(page))
-        
-        response_data = fetch_datatables_page(base_url, pagination_config, page)
-        if not response_data:
-            break
-        
-        # Check if we have data
-        if not response_data.get('data') or len(response_data['data']) == 0:
-            print("No more data found, stopping pagination.")
-            break
-        
-        page_tenders = []
-        # Parse each tender from response
-        for item in response_data['data']:
-            # Convert DataTables item to text format for parsing
-            tender_text = format_tender_item(item)
-            tender = parse_tender_block(tender_text, patterns)
-            
-            if tender:
-                tender.update({
-                    'portal_name': portal_config['name'],
-                    'source_url': base_url,
-                    'created_at': datetime.now(timezone.utc).isoformat(),
-                    'raw_data': item  # Keep raw data for reference
-                })
-                page_tenders.append(tender)
-                all_tenders.append(tender)
-        
-        # Save after each page is processed
-        print("Saving {} tenders from page {}...".format(len(page_tenders), page))
-        save_tenders_to_json(all_tenders, output_file)
-        
-        print("Total tenders so far: {}".format(len(all_tenders)))
-        
-        # Check if this is the last page
-        if len(response_data['data']) < pagination_config['page_size']:
-            print("Reached last page.")
-            break
-    
-    return all_tenders
-
-
-def crawl_all_tenders(url: str, output_file: str = "tenders_crawled.json") -> List[Dict]:
+def crawl_all_tenders(url: str, portal_config: Dict, seen_tender_numbers: set) -> List[Dict]:
     """
     Main function to crawl and parse all tenders from portal.
     """
-    # Load configuration
-    config = load_portal_config()
-    portal = get_portal_by_url(config['portals'], url)
+    patterns = portal_config.get('patterns', {})
     
-    if not portal:
-        raise ValueError("No configuration found for URL: {}".format(url))
+    if not patterns:
+        raise ValueError("No patterns found in configuration for URL: {}".format(url))
     
-    patterns = portal['patterns']
+    all_tenders = []
     
     # Check if portal has pagination configuration
-    if portal.get('pagination', {}).get('type') == 'datatables':
+    if portal_config.get('pagination', {}).get('type') == 'datatables':
         print("Using DataTables pagination...")
-        parsed_tenders = crawl_all_pages(url, portal, patterns, output_file)
+        # For DataTables, we need to process differently
+        parsed_tenders = []
+        pagination_config = portal_config.get('pagination', {})
+        max_pages = pagination_config.get('max_pages', 50)
+        
+        for page in range(1, max_pages + 1):
+            print("Fetching page {}...".format(page))
+            
+            response_data = fetch_datatables_page(url, pagination_config, page)
+            if not response_data:
+                break
+            
+            # Check if we have data
+            if not response_data.get('data') or len(response_data['data']) == 0:
+                print("No more data found, stopping pagination.")
+                break
+            
+            # Parse each tender from response
+            page_tenders = []
+            for item in response_data['data']:
+                # Convert DataTables item to text format for parsing
+                tender_text = format_tender_item(item)
+                tender = parse_tender_block(tender_text, patterns)
+                
+                if tender:
+                    page_tenders.append(tender)
+            
+            # Process page tenders with deduplication
+            new_count, new_generic_tenders = process_page_tenders(page_tenders, seen_tender_numbers, portal_config.get('name', 'Unknown'), url)
+            all_tenders.extend(new_generic_tenders)
+            
+            print("Added {} new tenders from page {}".format(new_count, page))
+            
+            # Check if this is the last page
+            if len(response_data['data']) < pagination_config['page_size']:
+                print("Reached last page.")
+                break
     else:
         print("Using static page parsing...")
         # Fallback to original method
@@ -191,7 +202,7 @@ def crawl_all_tenders(url: str, output_file: str = "tenders_crawled.json") -> Li
         soup = BeautifulSoup(html, "html.parser")
         
         # Extract all text content
-        excluded_tags = portal.get('selectors', {}).get('excluded_tags', ['script', 'style'])
+        excluded_tags = portal_config.get('selectors', {}).get('excluded_tags', ['script', 'style'])
         for tag in soup(excluded_tags):
             tag.decompose()
         
@@ -205,25 +216,52 @@ def crawl_all_tenders(url: str, output_file: str = "tenders_crawled.json") -> Li
         for block in tender_blocks:
             tender = parse_tender_block(block, patterns)
             if tender:
-                tender['portal_name'] = portal['name']
-                tender['source_url'] = url
-                tender['created_at'] = datetime.now(timezone.utc).isoformat()
                 parsed_tenders.append(tender)
+        
+        # Process tenders with deduplication
+        new_count, new_generic_tenders = process_page_tenders(parsed_tenders, seen_tender_numbers, portal_config.get('name', 'Unknown'), url)
+        all_tenders.extend(new_generic_tenders)
+        
+        print("Added {} new tenders from static page".format(new_count))
     
-    # Save to file
-    ensure_output_directory(output_file)
-    save_tenders_to_json(parsed_tenders, output_file)
+    return all_tenders
+
+
+def main() -> None:
+    """Main function to orchestrate the pattern-based tender crawling workflow"""
+    config = load_config_with_refs("config/portals.json")
     
-    print("Found and parsed {} tenders".format(len(parsed_tenders)))
-    return parsed_tenders
+    all_tenders = []
+    seen_tender_numbers = load_existing_tender_numbers("outputs/tenders.ndjson")
+    
+    # Loop over all portals
+    for portal in config["portals"]:
+        if not portal.get("active", True):
+            print(f"Skipping inactive portal: {portal['name']}")
+            continue
+            
+        # Only process pattern-based portals (those with schema "pattern_based" or no schema but with patterns)
+        portal_config = get_portal_config(portal)
+        if not portal_config.get("patterns"):
+            print(f"Skipping non-pattern-based portal: {portal['name']}")
+            continue
+            
+        print(f"Processing portal: {portal['name']} ({portal['country']})")
+        
+        # Loop over all listing URLs for this portal
+        for url in portal["listing_urls"]:
+            print(f"Crawling URL: {url}")
+            
+            tenders = crawl_all_tenders(url, portal_config, seen_tender_numbers)
+            all_tenders.extend(tenders)
+            print(f"Found {len(tenders)} tenders from {url}")
+    
+    print(f"Total tenders found across all pattern-based portals: {len(all_tenders)}")
+    
+    # Display first 5 tenders in generic format
+    for t in all_tenders[:5]:
+        print(t)
 
 
 if __name__ == "__main__":
-    url = "https://www.csjn.gov.ar/transparencia/adquisiciones-y-contrataciones"
-    tenders = crawl_all_tenders(url, "outputs/tenders_crawled.json")
-    
-    print("\nSample tender data:")
-    for i, tender in enumerate(tenders[:3]):  # Show first 3 tenders
-        print("\nTender {}:".format(i + 1))
-        for key, value in tender.items():
-            print("  {}: {}".format(key, value))
+    main()

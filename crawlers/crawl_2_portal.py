@@ -9,36 +9,24 @@ from utils.playwright_utils import setup_browser_context, open_page
 from utils.config_resolver import load_config_with_refs, get_portal_config
 from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson, ensure_output_directory
 from utils.bs4_utils import extract_tender_blocks, parse_tender_block, format_tender_item
+from models.tender import TenderModel
 
-
-def map_pattern_to_generic_tender(pattern_tender: Dict, portal_name: str, source_url: str) -> Dict:
+def map_pattern_to_generic_tender(pattern_tender: Dict, portal_name: str, source_url: str) -> TenderModel:
     """Map pattern-based tender structure to generic tender structure"""
-    return {
-        "number": pattern_tender.get("expediente", ""),
-        "description": pattern_tender.get("description", ""),
-        "type": pattern_tender.get("document_type", ""),
-        "date": pattern_tender.get("date", ""),
-        "status": "active",  # Default status for pattern-based tenders
-        "url": source_url,
-        "details_url": None,  # Pattern-based tenders don't have details pages
-        "page_no": 1,  # Default page number
-        "portal_name": portal_name,
-        "category": pattern_tender.get("category", ""),
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
+    return TenderModel.from_pattern_tender(pattern_tender, portal_name, source_url)
 
 
-def process_page_tenders(tenders: List[Dict], seen_tender_numbers: set, portal_name: str, source_url: str) -> Tuple[int, List[Dict]]:
-    """Process tenders from a page and return count of new tenders and the new tenders list"""
+def process_page_tenders(tenders: List[Dict], seen_tender_numbers: set, portal_name: str, source_url: str) -> Tuple[int, List[TenderModel]]:
+    """Process tenders from a page and return count of new tenders and new tenders list"""
     new_count = 0
     new_tenders = []
     for tender in tenders:
         # Map to generic structure
         generic_tender = map_pattern_to_generic_tender(tender, portal_name, source_url)
         
-        if generic_tender["number"] not in seen_tender_numbers:
-            seen_tender_numbers.add(generic_tender["number"])
-            save_tender_to_ndjson(generic_tender)
+        if generic_tender.number not in seen_tender_numbers:
+            seen_tender_numbers.add(generic_tender.number)
+            save_tender_to_ndjson(generic_tender.to_dict())
             new_count += 1
             new_tenders.append(generic_tender)
     return new_count, new_tenders
@@ -63,7 +51,7 @@ def extract_csrf_token_and_session(base_url: str) -> tuple[str, requests.Session
     
     try:
         # First, visit the main page to get cookies and CSRF token
-        response = session.get(base_url, timeout=30)
+        response = session.get(base_url, timeout=60)
         response.raise_for_status()
         
         # Extract CSRF token from the page content
@@ -82,8 +70,17 @@ def extract_csrf_token_and_session(base_url: str) -> tuple[str, requests.Session
         
         return csrf_token, session
         
+    except requests.exceptions.Timeout:
+        print("Timeout error extracting CSRF token, using fallback")
+        return "92f60e65-2bac-42a4-bc27-199443bdedba", session
+    except requests.exceptions.SSLError as e:
+        print("SSL error extracting CSRF token: {}, using fallback".format(e))
+        return "92f60e65-2bac-42a4-bc27-199443bdedba", session
+    except requests.exceptions.ConnectionError as e:
+        print("Connection error extracting CSRF token: {}, using fallback".format(e))
+        return "92f60e65-2bac-42a4-bc27-199443bdedba", session
     except requests.RequestException as e:
-        print("Error extracting CSRF token: {}".format(e))
+        print("Error extracting CSRF token: {}, using fallback".format(e))
         return "92f60e65-2bac-42a4-bc27-199443bdedba", session
 
 
@@ -132,18 +129,27 @@ def fetch_datatables_page(base_url: str, pagination_config: Dict, page: int = 1,
     }
     
     try:
-        response = session.post(url, json=payload, headers=headers, timeout=30)
+        response = session.post(url, json=payload, headers=headers, timeout=60)
         print("Response status: {}".format(response.status_code))
         if response.status_code != 200:
             print("Response content: {}".format(response.text[:500]))
         response.raise_for_status()
         return response.json()
+    except requests.exceptions.Timeout:
+        print("Timeout error fetching page {}: Request took too long".format(page))
+        return None
+    except requests.exceptions.SSLError as e:
+        print("SSL error fetching page {}: {}".format(page, e))
+        return None
+    except requests.exceptions.ConnectionError as e:
+        print("Connection error fetching page {}: {}".format(page, e))
+        return None
     except requests.RequestException as e:
         print("Error fetching page {}: {}".format(page, e))
         return None
 
 
-def crawl_all_tenders(url: str, portal_config: Dict, seen_tender_numbers: set) -> List[Dict]:
+def crawl_all_tenders(url: str, portal_config: Dict, seen_tender_numbers: set) -> List[TenderModel]:
     """
     Main function to crawl and parse all tenders from portal.
     """

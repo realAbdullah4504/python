@@ -4,21 +4,25 @@ from typing import List, Dict, Tuple, Set
 from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback, cleanup_browser_resources
 from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson
 from utils.bs4_utils import extract_pagination_links, extract_listing_rows
+from models.tender import TenderModel
 
-def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> Tuple[int, List[Dict]]:
-    """Process tenders from a page and return count of new tenders and the new tenders list"""
+def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str], portal_name: str) -> Tuple[int, List[TenderModel]]:
+    """Process tenders from a page and return count of new tenders and new tenders list"""
     new_count = 0
     new_tenders = []
-    for tender in tenders:
-        if tender["number"] not in seen_tender_numbers:
-            seen_tender_numbers.add(tender["number"])
-            save_tender_to_ndjson(tender)
+    for tender_dict in tenders:
+        # Convert to TenderModel
+        tender = TenderModel.from_table_tender(tender_dict, portal_name)
+        
+        if tender.number not in seen_tender_numbers:
+            seen_tender_numbers.add(tender.number)
+            save_tender_to_ndjson(tender.to_dict())
             new_count += 1
             new_tenders.append(tender)
     return new_count, new_tenders
 
 
-def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
+def crawl_all_tenders(url: str, portal_config: Dict, portal_name: str) -> List[TenderModel]:
     selectors = portal_config["selectors"]
     column_mapping = portal_config.get("column_mapping", {})
     pagination = portal_config.get("pagination", {})
@@ -63,7 +67,7 @@ def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
                 print("No tenders found, stopping crawl")
                 break
 
-            new_count, new_tenders = process_page_tenders(tenders, seen_tender_numbers)
+            new_count, new_tenders = process_page_tenders(tenders, seen_tender_numbers, portal_name)
             all_tenders.extend(new_tenders)
 
             print(f"Added {new_count} new tenders from page {current_page}")
@@ -111,7 +115,7 @@ def main() -> None:
             print(f"Crawling URL: {url}")
             
             portal_config = get_portal_config(portal)
-            tenders = crawl_all_tenders(url, portal_config)
+            tenders = crawl_all_tenders(url, portal_config, portal['name'])
             all_tenders.extend(tenders)
             print(f"Found {len(tenders)} tenders from {url}")
     
@@ -119,7 +123,7 @@ def main() -> None:
     
     # Display first 5 tenders
     for t in all_tenders[:5]:
-        print(t)
+        print(t.to_dict())
 
 
 if __name__ == "__main__":

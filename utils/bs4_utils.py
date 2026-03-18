@@ -163,13 +163,18 @@ def parse_tender_block(block: str, patterns: Dict) -> Optional[Dict[str, str]]:
     
     tender_data = {}
     
-    # Extract date (first line should be date)
-    date_match = re.match(patterns['date'], lines[0], re.IGNORECASE)
-    if date_match:
-        tender_data['date'] = date_match.group(1)
+    # Extract docId (first line if it's numeric)
+    if lines and lines[0].isdigit():
+        tender_data['docId'] = lines[0]
         remaining_lines = lines[1:]
     else:
         remaining_lines = lines
+    
+    # Extract date (first line should be date)
+    date_match = re.match(patterns['date'], remaining_lines[0], re.IGNORECASE) if remaining_lines else None
+    if date_match:
+        tender_data['date'] = date_match.group(1)
+        remaining_lines = remaining_lines[1:]
     
     # Extract expediente
     expediente, expediente_idx = _extract_expediente(remaining_lines, patterns)
@@ -203,6 +208,9 @@ def format_tender_item(item: Dict) -> str:
     Format DataTables item into text that matches our parsing patterns.
     """
     lines = []
+
+    if(item.get('docId')):
+        lines.append(str(item['docId']))
     
     if item.get('fechaCompleta'):
         lines.append(item['fechaCompleta'])

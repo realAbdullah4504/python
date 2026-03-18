@@ -6,17 +6,19 @@ from typing import List, Dict, Optional, Tuple, Set
 from datetime import datetime
 from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback, cleanup_browser_resources
 from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson
-from utils.bs4_utils import extract_listing_rows
+from utils.bs4_utils import extract_pagination_links, extract_listing_rows
 
-def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> int:
-    """Process tenders from a page and return count of new tenders"""
+def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> Tuple[int, List[Dict]]:
+    """Process tenders from a page and return count of new tenders and the new tenders list"""
     new_count = 0
+    new_tenders = []
     for tender in tenders:
         if tender["number"] not in seen_tender_numbers:
             seen_tender_numbers.add(tender["number"])
             save_tender_to_ndjson(tender)
             new_count += 1
-    return new_count
+            new_tenders.append(tender)
+    return new_count, new_tenders
 
 
 def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
@@ -31,6 +33,21 @@ def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
     try:
         page = navigate_to_main_page(context, url)
         current_page = 1
+        
+        # Extract pagination target from the first page
+        html = page.content()
+        soup = BeautifulSoup(html, "html.parser")
+        pagination_links = extract_pagination_links(soup, selectors)
+        
+        # Get the pagination target from the first link, or fallback to config
+        pagination_target = None
+        if pagination_links:
+            pagination_target = pagination_links[0].get("target")
+            print(f"Extracted pagination target: {pagination_target}")
+        
+        if not pagination_target:
+            pagination_target = pagination.get("target", "ctl00$CPH1$GridListaPliegos")
+            print(f"Using fallback pagination target: {pagination_target}")
 
         while True:
             print(f"Crawling page: {current_page}")
@@ -51,16 +68,20 @@ def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
                 print("No tenders found, stopping crawl")
                 break
 
-            new_count = process_page_tenders(tenders, seen_tender_numbers)
-            all_tenders.extend([t for t in tenders if t["number"] in seen_tender_numbers])
+            new_count, new_tenders = process_page_tenders(tenders, seen_tender_numbers)
+            all_tenders.extend(new_tenders)
 
             print(f"Added {new_count} new tenders from page {current_page}")
+
+            if new_count == 0:
+                print("No new tenders found, stopping crawl")
+                break
 
             current_page += 1
 
             # Handle pagination based on portal config
             if pagination.get("type") == "postback":
-                target = pagination.get("target", "ctl00$CPH1$GridListaPliegos")
+                target = pagination_target  # Use extracted target
                 argument = f"Page${current_page}"
                 simulate_postback(page, target, argument)
             else:

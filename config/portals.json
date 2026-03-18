@@ -47,6 +47,7 @@
       "active": true,
       "schema": "table_based",
       "listing_urls": [
+        "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=",
         "https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs="
       ],
       "config": {
@@ -64,7 +65,6 @@
         },
         "pagination": {
           "$ref": "#/templates/pagination_types/postback",
-          "target": "ctl00$CPH1$GridListaPliegos",
           "argument_pattern": "Page\\$(\\d+)"
         }
       }

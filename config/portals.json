@@ -26,7 +26,7 @@
     "pagination_types": {
       "postback": {
         "type": "postback",
-        "max_pages": 10
+        "max_pages": 2
       },
       "datatables": {
         "type": "datatables",
@@ -45,7 +45,6 @@
       "country": "Argentina", 
       "type": "national",
       "active": true,
-      "schema": "table_based",
       "listing_urls": [
         "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=",
         "https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs="
@@ -95,8 +94,7 @@
             "$ref": "#/templates/pagination_types/datatables/headers",
             "X-CSRF-TOKEN": "92f60e65-2bac-42a4-bc27-199443bdedba"
           }
-        },
-        "extraction_method": "text_blocks"
+        }
       }
     }
   ]

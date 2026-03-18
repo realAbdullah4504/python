@@ -1,9 +1,6 @@
 from utils.config_resolver import load_config_with_refs, get_portal_config
 from bs4 import BeautifulSoup
-import re
-import json
-from typing import List, Dict, Optional, Tuple, Set
-from datetime import datetime
+from typing import List, Dict, Tuple, Set
 from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback, cleanup_browser_resources
 from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson
 from utils.bs4_utils import extract_pagination_links, extract_listing_rows
@@ -33,23 +30,21 @@ def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
     try:
         page = navigate_to_main_page(context, url)
         current_page = 1
+        max_pages = pagination.get("max_pages", 10)  # Get max_pages from config
         
-        # Extract pagination target from the first page
+        # Extract pagination links and target
         html = page.content()
         soup = BeautifulSoup(html, "html.parser")
-        pagination_links = extract_pagination_links(soup, selectors)
+        _, pagination_target = extract_pagination_links(soup, selectors, return_target=True)
         
-        # Get the pagination target from the first link, or fallback to config
-        pagination_target = None
-        if pagination_links:
-            pagination_target = pagination_links[0].get("target")
-            print(f"Extracted pagination target: {pagination_target}")
-        
+        # Use fallback target if none found
         if not pagination_target:
             pagination_target = pagination.get("target", "ctl00$CPH1$GridListaPliegos")
             print(f"Using fallback pagination target: {pagination_target}")
+        else:
+            print(f"Extracted pagination target: {pagination_target}")
 
-        while True:
+        while current_page <= max_pages:
             print(f"Crawling page: {current_page}")
 
             html = page.content()
@@ -81,6 +76,9 @@ def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
 
             # Handle pagination based on portal config
             if pagination.get("type") == "postback":
+                if current_page > max_pages:
+                    print(f"Reached maximum pages limit ({max_pages}), stopping crawl")
+                    break
                 target = pagination_target  # Use extracted target
                 argument = f"Page${current_page}"
                 simulate_postback(page, target, argument)

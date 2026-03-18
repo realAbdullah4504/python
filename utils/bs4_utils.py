@@ -13,11 +13,11 @@ def extract_postback_target(link) -> Tuple[Optional[str], Optional[str]]:
 
     return None, None
 
-def extract_pagination_links(soup: BeautifulSoup, selectors: Dict) -> List[Dict]:
+def extract_pagination_links(soup: BeautifulSoup, selectors: Dict, return_target: bool = False) -> List[Dict] | Tuple[List[Dict], Optional[str]]:
     """Extract pagination links from the page"""
     table = soup.find(selectors["main_table"])
     if not table:
-        return []
+        return [] if not return_target else ([], None)
 
     pagination_links = []
 
@@ -33,6 +33,12 @@ def extract_pagination_links(soup: BeautifulSoup, selectors: Dict) -> List[Dict]
                     "argument": argument
                 })
 
+    if return_target:
+        pagination_target = None
+        if pagination_links:
+            pagination_target = pagination_links[0].get("target")
+        return pagination_links, pagination_target
+    
     return pagination_links
 
 def extract_listing_rows(soup: BeautifulSoup, url: str, selectors: Dict, column_mapping: Dict, page_no: int = 1) -> List[Dict]:

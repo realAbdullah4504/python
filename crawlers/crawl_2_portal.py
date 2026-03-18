@@ -24,8 +24,11 @@ def process_page_tenders(tenders: List[Dict], seen_tender_numbers: set, portal_n
         # Map to generic structure
         generic_tender = map_pattern_to_generic_tender(tender, portal_name, source_url)
         
-        if generic_tender.number not in seen_tender_numbers:
-            seen_tender_numbers.add(generic_tender.number)
+        # Use docId for deduplication, fallback to number for backward compatibility
+        tender_id = generic_tender.docId if generic_tender.docId else generic_tender.number
+        
+        if tender_id not in seen_tender_numbers:
+            seen_tender_numbers.add(tender_id)
             save_tender_to_ndjson(generic_tender.to_dict())
             new_count += 1
             new_tenders.append(generic_tender)

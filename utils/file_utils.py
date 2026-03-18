@@ -5,18 +5,21 @@ import os
 
 
 def load_existing_tender_numbers(filename: str = "outputs/tenders.ndjson") -> Set[str]:
-    """Load existing tender numbers from NDJSON file"""
-    existing_numbers = set()
+    """Load existing tender docIds from NDJSON file"""
+    existing_docids = set()
     try:
         with open(filename, "r", encoding="utf-8") as f:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
-                    if "number" in data:
-                        existing_numbers.add(data["number"])
+                    # Use docId for deduplication, fallback to number for backward compatibility
+                    if "docId" in data and data["docId"]:
+                        existing_docids.add(data["docId"])
+                    elif "number" in data:
+                        existing_docids.add(data["number"])
     except FileNotFoundError:
         pass
-    return existing_numbers
+    return existing_docids
 
 
 def save_tender_to_ndjson(tender: Dict, filename: str = "outputs/tenders.ndjson") -> bool:

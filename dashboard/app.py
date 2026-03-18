@@ -49,7 +49,8 @@ def tenders_to_df(tenders: list):
             "Description": t.get("description", ""),
             "PCI Score": t.get("pci_score", 0),
             "Matched PCI Keywords": ", ".join(t.get("matched_pci_keywords", [])),
-            "Source URL": t.get("details_url", "")
+            "Source URL": t.get("details_url", ""),
+            "Listing URL": t.get("url", ""),
         })
     df = pd.DataFrame(data)
     return df
@@ -61,7 +62,7 @@ st.set_page_config(page_title="Tender PCI Dashboard", layout="wide")
 st.title("Tender PCI Compliance Dashboard")
 
 # Load data
-scored_file = "outputs/scored_tenders.ndjson"
+scored_file = "outputs/tenders.ndjson"
 tenders = load_scored_tenders(scored_file)
 
 if not tenders:
@@ -74,6 +75,10 @@ st.sidebar.header("Filters")
 min_score = st.sidebar.number_input("Minimum PCI Score", value=0, step=1)
 keyword_filter = st.sidebar.text_input("Filter by PCI Keyword (comma-separated)")
 
+# Get unique listing URLs for dropdown
+unique_listing_urls = ["All"] + sorted(df["Listing URL"].unique().tolist())
+selected_listing_url = st.sidebar.selectbox("Filter by Listing URL", unique_listing_urls)
+
 filtered_df = df[df["PCI Score"] >= min_score]
 
 # Apply keyword filter if provided
@@ -84,6 +89,10 @@ if keyword_filter.strip():
             lambda x: any(k in x for k in keywords)
         )
     ]
+
+# Apply listing URL filter if not "All"
+if selected_listing_url != "All":
+    filtered_df = filtered_df[filtered_df["Listing URL"] == selected_listing_url]
 
 # Display results
 if filtered_df.empty:

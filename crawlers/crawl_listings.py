@@ -1,3 +1,4 @@
+from utils.config_resolver import load_config_with_refs, get_portal_config
 from bs4 import BeautifulSoup
 import re
 import json
@@ -5,7 +6,7 @@ from typing import List, Dict, Optional, Tuple, Set
 from datetime import datetime
 from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback, cleanup_browser_resources
 from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson
-from utils.bs4_utils import  extract_listing_rows, find_next_pagination_link, extract_postback_target
+from utils.bs4_utils import extract_listing_rows
 
 def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> int:
     """Process tenders from a page and return count of new tenders"""
@@ -18,7 +19,10 @@ def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> 
     return new_count
 
 
-def crawl_all_tenders(url: str, selectors: Dict, column_mapping: Dict) -> List[Dict]:
+def crawl_all_tenders(url: str, portal_config: Dict) -> List[Dict]:
+    selectors = portal_config["selectors"]
+    column_mapping = portal_config.get("column_mapping", {})
+    pagination = portal_config.get("pagination", {})
     all_tenders = []
     seen_tender_numbers = load_existing_tender_numbers()
 
@@ -52,28 +56,17 @@ def crawl_all_tenders(url: str, selectors: Dict, column_mapping: Dict) -> List[D
 
             print(f"Added {new_count} new tenders from page {current_page}")
 
-            if new_count == 0:
-                print("No new tenders found, stopping crawl")
-                break
+            current_page += 1
 
-            # 🔹 Pagination logic
-            pagination_links = extract_pagination_links(soup, selectors)
-            next_link = find_next_pagination_link(pagination_links, current_page)
-
-            if not next_link:
-                print(f"No more pages found after page {current_page}")
-                break
-
-            # 🔹 Update page number
-            if next_link["page_no"] == "...":
-                match = re.search(r'Page\$(\d+)', next_link["argument"], re.IGNORECASE)
-                if match:
-                    current_page = int(match.group(1))
+            # Handle pagination based on portal config
+            if pagination.get("type") == "postback":
+                target = pagination.get("target", "ctl00$CPH1$GridListaPliegos")
+                argument = f"Page${current_page}"
+                simulate_postback(page, target, argument)
             else:
-                current_page += 1
-
-            # 🔹 Navigate to next page
-            simulate_postback(page, next_link["target"], next_link["argument"])
+                # For other pagination types, break for now
+                print("Pagination handling not implemented for this type")
+                break
 
     finally:
         cleanup_browser_resources(playwright, browser)
@@ -82,8 +75,7 @@ def crawl_all_tenders(url: str, selectors: Dict, column_mapping: Dict) -> List[D
     
 def main() -> None:
     """Main function to orchestrate the tender crawling workflow"""
-    with open("config/portals.json") as f:
-        config = json.load(f)
+    config = load_config_with_refs("config/portals.json")
     
     all_tenders = []
     
@@ -99,7 +91,8 @@ def main() -> None:
         for url in portal["listing_urls"]:
             print(f"Crawling URL: {url}")
             
-            tenders = crawl_all_tenders(url, portal["selectors"], portal["column_mapping"])
+            portal_config = get_portal_config(portal)
+            tenders = crawl_all_tenders(url, portal_config)
             all_tenders.extend(tenders)
             print(f"Found {len(tenders)} tenders from {url}")
     

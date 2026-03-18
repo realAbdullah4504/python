@@ -1,66 +1,103 @@
 {
+  "version": "2.0",
+  "schemas": {
+    "table_based": {
+      "required_fields": ["main_table", "table_row", "table_cell"],
+      "optional_fields": ["table_body", "header_row_class", "pagination_row_class", "link"]
+    },
+    "pattern_based": {
+      "required_fields": ["patterns"],
+      "optional_fields": ["excluded_tags", "extraction_method"]
+    }
+  },
+  "templates": {
+    "default_selectors": {
+      "table": {
+        "main_table": "table",
+        "table_body": "tbody", 
+        "table_row": "tr",
+        "table_cell": "td",
+        "link": "a"
+      },
+      "common_exclusions": {
+        "excluded_tags": ["script", "style", "nav", "footer", "header"]
+      }
+    },
+    "pagination_types": {
+      "postback": {
+        "type": "postback",
+        "max_pages": 10
+      },
+      "datatables": {
+        "type": "datatables",
+        "method": "POST",
+        "page_size": 20,
+        "max_pages": 2,
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        }
+      }
+    }
+  },
   "portals": [
     {
       "name": "Comprar Gob AR",
-      "country": "Argentina",
+      "country": "Argentina", 
       "type": "national",
       "active": true,
+      "schema": "table_based",
       "listing_urls": [
-        "https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=",
         "https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs="
       ],
-      "selectors": {
-        "main_table": "table",
-        "table_body": "tbody",
-        "table_row": "tr",
-        "header_row_class": "tr-header",
-        "pagination_row_class": "pagination-gv",
-        "link": "a",
-        "table_cell": "td"
-      },
-      "column_mapping": {
-        "number": 0,
-        "description": 1,
-        "type": 2,
-        "date": 3,
-        "status": 4
-      },
-      "pagination": {
-        "type": "postback",
-        "target": "ctl00$CPH1$GridListaPliegos",
-        "argument_pattern": "Page\\$(\\d+)",
-        "max_pages": 10
+      "config": {
+        "selectors": {
+          "$ref": "#/templates/default_selectors/table",
+          "header_row_class": "tr-header",
+          "pagination_row_class": "pagination-gv"
+        },
+        "column_mapping": {
+          "number": 0,
+          "description": 1,
+          "type": 2,
+          "date": 3,
+          "status": 4
+        },
+        "pagination": {
+          "$ref": "#/templates/pagination_types/postback",
+          "target": "ctl00$CPH1$GridListaPliegos",
+          "argument_pattern": "Page\\$(\\d+)"
+        }
       }
     },
     {
       "name": "CSJN Adquisiciones",
       "country": "Argentina",
-      "type": "judicial",
+      "type": "judicial", 
       "active": true,
+      "schema": "pattern_based",
       "listing_urls": [
         "https://www.csjn.gov.ar/transparencia/adquisiciones-y-contrataciones"
       ],
-      "selectors": {
-        "excluded_tags": ["script", "style", "nav", "footer", "header"]
-      },
-      "patterns": {
-        "date": "(\\d{1,2}\\s+de\\s+[a-z]+\\s+de\\s+\\d{4})",
-        "expediente": "Expediente:\\s*(\\d+/\\d{4})",
-        "document_type_number": "(?:Informe|Resolución|Disposición|Nota|Memorandum)\\s+(\\d+(?:/\\d{4})?)",
-        "category": "([^-]+(?:\\s*-\\s*[^-]+){2,})$"
-      },
-      "pagination": {
-        "type": "datatables",
-        "endpoint": "/temasGral/dataAdquisiciones",
-        "method": "POST",
-        "headers": {
-          "X-CSRF-TOKEN": "92f60e65-2bac-42a4-bc27-199443bdedba",
-          "Content-Type": "application/json; charset=utf-8"
+      "config": {
+        "selectors": {
+          "$ref": "#/templates/default_selectors/common_exclusions"
         },
-        "page_size": 20,
-        "max_pages": 2
-      },
-      "extraction_method": "text_blocks"
+        "patterns": {
+          "date": "(\\d{1,2}\\s+de\\s+[a-z]+\\s+de\\s+\\d{4})",
+          "expediente": "Expediente:\\s*(\\d+/\\d{4})",
+          "document_type_number": "(?:Informe|Resolución|Disposición|Nota|Memorandum)\\s+(\\d+(?:/\\d{4})?)",
+          "category": "([^-]+(?:\\s*-\\s*[^-]+){2,})$"
+        },
+        "pagination": {
+          "$ref": "#/templates/pagination_types/datatables",
+          "endpoint": "/temasGral/dataAdquisiciones",
+          "headers": {
+            "$ref": "#/templates/pagination_types/datatables/headers",
+            "X-CSRF-TOKEN": "92f60e65-2bac-42a4-bc27-199443bdedba"
+          }
+        },
+        "extraction_method": "text_blocks"
+      }
     }
   ]
 }

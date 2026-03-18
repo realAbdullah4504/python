@@ -5,7 +5,7 @@ from typing import List, Dict, Optional, Tuple, Set
 from datetime import datetime
 from utils.playwright_utils import setup_browser_context, navigate_to_main_page, simulate_postback, cleanup_browser_resources
 from utils.file_utils import load_existing_tender_numbers, save_tender_to_ndjson
-from utils.bs4_utils import extract_pagination_links, extract_listing_rows, find_next_pagination_link, extract_postback_target
+from utils.bs4_utils import  extract_listing_rows, find_next_pagination_link, extract_postback_target
 
 def process_page_tenders(tenders: List[Dict], seen_tender_numbers: Set[str]) -> int:
     """Process tenders from a page and return count of new tenders"""

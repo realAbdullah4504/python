@@ -14,30 +14,7 @@ def extract_postback_target(link) -> Tuple[Optional[str], Optional[str]]:
     return None, None
 
 
-def extract_pagination_links(soup: BeautifulSoup, selectors: Dict) -> List[Dict]:
-    """Extract pagination links from the page"""
-    table = soup.find(selectors["main_table"])
-    if not table:
-        return []
-
-    pagination_links = []
-
-    for row in table.find_all(selectors["table_row"], class_=selectors["pagination_row_class"]):
-        for link in row.find_all(selectors["link"]):
-
-            target, argument = extract_postback_target(link)
-
-            if target:
-                pagination_links.append({
-                    "page_no": link.get_text(strip=True),
-                    "target": target,
-                    "argument": argument
-                })
-
-    return pagination_links
-
-
-def extract_listing_rows(soup: BeautifulSoup, url: str, selectors: Dict, column_mapping: Dict, page_no: int = 1, pagination_target: str = "", pagination_argument: str = "") -> List[Dict]:
+def extract_listing_rows(soup: BeautifulSoup, url: str, selectors: Dict, column_mapping: Dict, page_no: int = 1) -> List[Dict]:
     """Extract tender listing rows from the page"""
     tenders = []
 
@@ -75,9 +52,7 @@ def extract_listing_rows(soup: BeautifulSoup, url: str, selectors: Dict, column_
             "status": cells[column_mapping["status"]].get_text(strip=True),
             "url": url,
             "details_url": target,
-            "page_no": page_no,
-            "pagination_target": pagination_target,
-            "pagination_argument": pagination_argument
+            "page_no": page_no
         }
         tenders.append(tender)
 

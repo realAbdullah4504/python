@@ -24,6 +24,12 @@
         "type": 2,
         "date": 3,
         "status": 4
+      },
+      "pagination": {
+        "type": "postback",
+        "target": "ctl00$CPH1$GridListaPliegos",
+        "argument_pattern": "Page\\$(\\d+)",
+        "max_pages": 10
       }
     },
     {

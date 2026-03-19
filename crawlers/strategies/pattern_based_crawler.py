@@ -9,7 +9,7 @@ from utils.bs4_utils import extract_tender_blocks, parse_tender_block, format_te
 from crawlers.processors import TenderProcessor, DeduplicationService
 from crawlers.pagination import DataTablesPaginationHandler
 from models.tender import TenderModel
-from .base_crawler import ICrawlerStrategy
+from ..interfaces.crawler_strategy import ICrawlerStrategy
 
 
 class PatternBasedCrawler(ICrawlerStrategy):

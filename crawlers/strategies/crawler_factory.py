@@ -3,7 +3,7 @@ Factory for creating appropriate crawler strategies.
 """
 
 from typing import Dict, Optional
-from .base_crawler import ICrawlerStrategy
+from ..interfaces.crawler_strategy import ICrawlerStrategy
 from .pattern_based_crawler import PatternBasedCrawler
 from .table_based_crawler import TableBasedCrawler
 

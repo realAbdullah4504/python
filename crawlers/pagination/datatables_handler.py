@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional
 from urllib.parse import urljoin
 import requests
 from utils.web_utils import extract_csrf_token_and_session
-from .base_handler import IPaginationHandler
+from ..interfaces.pagination_handler import IPaginationHandler
 
 
 class DataTablesPaginationHandler(IPaginationHandler):

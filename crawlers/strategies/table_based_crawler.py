@@ -9,7 +9,7 @@ from utils.bs4_utils import extract_listing_rows
 from crawlers.processors import TenderProcessor, DeduplicationService
 from crawlers.pagination import PostbackPaginationHandler
 from models.tender import TenderModel
-from .base_crawler import ICrawlerStrategy
+from ..interfaces.crawler_strategy import ICrawlerStrategy
 
 
 class TableBasedCrawler(ICrawlerStrategy):

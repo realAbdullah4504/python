@@ -7,7 +7,7 @@ from requests import Session
 from bs4 import BeautifulSoup
 from utils.playwright_utils import simulate_postback
 from utils.bs4_utils import extract_pagination_links
-from .base_handler import IPaginationHandler
+from ..interfaces.pagination_handler import IPaginationHandler
 
 
 class PostbackPaginationHandler(IPaginationHandler):

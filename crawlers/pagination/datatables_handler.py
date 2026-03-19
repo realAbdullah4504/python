@@ -5,130 +5,71 @@ DataTables pagination handler for AJAX-based pagination.
 from typing import Dict, Any, Optional
 from urllib.parse import urljoin
 import requests
-from .base_handler import IPaginationHandler
 from utils.web_utils import extract_csrf_token_and_session
+from .base_handler import IPaginationHandler
 
 
 class DataTablesPaginationHandler(IPaginationHandler):
-    """
-    Handles DataTables AJAX pagination commonly used in modern web applications.
+    """Handles DataTables AJAX pagination."""
     
-    This handler manages pagination through AJAX requests to DataTables endpoints,
-    typically used in CSJN-style portals.
-    """
-    
-    def __init__(self, base_url: str):
+    def fetch_page(self, base_url: str, pagination_config: Dict, page: int = 1, 
+                   session: Optional[requests.Session] = None, 
+                   csrf_token: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
-        Initialize the DataTables pagination handler.
-        
-        Args:
-            base_url: Base URL of the portal
+        Fetch a single page of data from DataTables API.
         """
-        self.base_url = base_url
-        self.session = None
-        self.csrf_token = None
-    
-    def handle_pagination(
-        self, 
-        page,  # Not used for DataTables (uses AJAX instead)
-        current_page: int, 
-        pagination_config: Dict[str, Any]
-    ) -> bool:
-        """
-        Handle DataTables pagination via AJAX request.
-        
-        For DataTables, pagination is handled via AJAX requests rather than
-        browser navigation, so this method fetches data for the specified page.
-        
-        Args:
-            page: Playwright page object (not used for DataTables)
-            current_page: Current page number to fetch
-            pagination_config: Pagination configuration
-            
-        Returns:
-            True if pagination was successful, False if no more data
-        """
-        # DataTables uses AJAX, so we don't navigate the page
-        # The actual pagination logic is in fetch_page_data
-        return True
-    
-    def extract_pagination_info(
-        self, 
-        html_content: str, 
-        pagination_config: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Extract pagination information for DataTables.
-        
-        DataTables pagination info is minimal since it's AJAX-based.
-        
-        Args:
-            html_content: HTML content (not used for DataTables)
-            pagination_config: Pagination configuration
-            
-        Returns:
-            Dictionary with pagination configuration
-        """
-        return {
-            'type': 'datatables',
-            'endpoint': pagination_config.get('endpoint', ''),
-            'page_size': pagination_config.get('page_size', 10),
-            'max_pages': pagination_config.get('max_pages', 50)
-        }
-    
-    def is_last_page(
-        self, 
-        page_data: Dict[str, Any], 
-        pagination_config: Dict[str, Any]
-    ) -> bool:
-        """
-        Determine if the current page is the last page for DataTables.
-        
-        Args:
-            page_data: Response data from DataTables AJAX request
-            pagination_config: Pagination configuration
-            
-        Returns:
-            True if this is the last page, False otherwise
-        """
-        if not page_data or not page_data.get('data'):
-            return True
-        
-        data_length = len(page_data['data'])
-        page_size = pagination_config.get('page_size', 10)
-        
-        # If we got fewer results than page size, we're likely on the last page
-        return data_length < page_size
-    
-    def fetch_page_data(
-        self, 
-        page: int, 
-        pagination_config: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
-        """
-        Fetch data for a specific page using DataTables AJAX.
-        
-        Args:
-            page: Page number to fetch
-            pagination_config: Pagination configuration
-            
-        Returns:
-            Response data from DataTables API or None if failed
-        """
-        # Initialize session and CSRF token if needed
-        if not self.session or not self.csrf_token:
-            self.csrf_token, self.session = extract_csrf_token_and_session(self.base_url)
+        if not session or not csrf_token:
+            csrf_token, session = extract_csrf_token_and_session(base_url)
         
         endpoint = pagination_config['endpoint']
         # Ensure proper URL construction
         if not endpoint.startswith('/'):
             endpoint = '/' + endpoint
-        url = urljoin(self.base_url, endpoint)
+        url = urljoin(base_url, endpoint)
         
-        print(f"Fetching from URL: {url}")
+        print("Fetching from URL: {}".format(url))
         
         # DataTables request payload
-        payload = {
+        payload = self._build_payload(page, pagination_config)
+        
+        headers = self._build_headers(csrf_token, base_url)
+        
+        try:
+            response = session.post(url, json=payload, headers=headers, timeout=60)
+            print("Response status: {}".format(response.status_code))
+            if response.status_code != 200:
+                print("Response content: {}".format(response.text[:500]))
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.Timeout:
+            print("Timeout error fetching page {}: Request took too long".format(page))
+            return None
+        except requests.exceptions.SSLError as e:
+            print("SSL error fetching page {}: {}".format(page, e))
+            return None
+        except requests.exceptions.ConnectionError as e:
+            print("Connection error fetching page {}: {}".format(page, e))
+            return None
+        except requests.RequestException as e:
+            print("Error fetching page {}: {}".format(page, e))
+            return None
+    
+    def get_pagination_type(self) -> str:
+        """Return the pagination type identifier."""
+        return "datatables"
+    
+    def has_more_data(self, response_data: Dict[str, Any], page_size: int) -> bool:
+        """Check if there's more data available."""
+        data = response_data.get('data', [])
+        return len(data) > 0 and len(data) >= page_size
+    
+    def extract_data_from_response(self, response_data: Dict[str, Any]) -> list:
+        """Extract the actual data items from DataTables response."""
+        return response_data.get('data', [])
+    
+    def _build_payload(self, page: int, pagination_config: Dict) -> Dict[str, Any]:
+        """Build the DataTables request payload."""
+        return {
             "draw": page,
             "start": (page - 1) * pagination_config['page_size'],
             "length": pagination_config['page_size'],
@@ -146,30 +87,12 @@ class DataTablesPaginationHandler(IPaginationHandler):
                 "fechaHasta_a": ""
             }
         }
-        
-        headers = {
+    
+    def _build_headers(self, csrf_token: str, base_url: str) -> Dict[str, str]:
+        """Build the request headers."""
+        return {
             'Content-Type': 'application/json; charset=utf-8',
-            'X-CSRF-TOKEN': self.csrf_token,
-            'Referer': self.base_url,
+            'X-CSRF-TOKEN': csrf_token,
+            'Referer': base_url,
             'Origin': 'https://www.csjn.gov.ar'
         }
-        
-        try:
-            response = self.session.post(url, json=payload, headers=headers, timeout=60)
-            print(f"Response status: {response.status_code}")
-            if response.status_code != 200:
-                print(f"Response content: {response.text[:500]}")
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.Timeout:
-            print(f"Timeout error fetching page {page}: Request took too long")
-            return None
-        except requests.exceptions.SSLError as e:
-            print(f"SSL error fetching page {page}: {e}")
-            return None
-        except requests.exceptions.ConnectionError as e:
-            print(f"Connection error fetching page {page}: {e}")
-            return None
-        except requests.RequestException as e:
-            print(f"Error fetching page {page}: {e}")
-            return None

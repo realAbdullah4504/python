@@ -30,7 +30,6 @@ def open_page(url: str):
 
 def simulate_postback(page, target: str, argument: str = "", retries: int = 3) -> str:
     """Simulate a postback event on the page"""
-    print(f"Executing postback: target={target}, argument={argument}")
 
     old_url = page.url
 
@@ -48,7 +47,6 @@ def simulate_postback(page, target: str, argument: str = "", retries: int = 3) -
 
 def simulate_postback_with_retry(page, target, argument="", retries=3):
     """Simulate postback with retry logic and return HTML and real URL"""
-    print(f"Executing postback: target={target}, argument={argument}")
 
     for attempt in range(1, retries + 1):
         try:

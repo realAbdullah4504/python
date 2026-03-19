@@ -3,100 +3,65 @@ Base interface for pagination handlers.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, Tuple
-from playwright.sync_api import Page as PlaywrightPage
+from typing import Dict, Any, Optional
+import requests
 
 
 class IPaginationHandler(ABC):
-    """
-    Abstract base class for handling different types of pagination.
-    
-    This interface defines the contract that all pagination handlers must implement,
-    ensuring consistent behavior across different pagination mechanisms.
-    """
+    """Abstract base class for pagination handlers."""
     
     @abstractmethod
-    def handle_pagination(
-        self, 
-        page: PlaywrightPage, 
-        current_page: int, 
-        pagination_config: Dict[str, Any]
-    ) -> bool:
+    def fetch_page(self, base_url: str, pagination_config: Dict, page: int = 1, 
+                   session: Optional[requests.Session] = None, 
+                   csrf_token: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
-        Handle pagination to navigate to the next page.
+        Fetch a single page of data.
         
         Args:
-            page: Playwright page object
-            current_page: Current page number
-            pagination_config: Pagination configuration dictionary
+            base_url: Base URL for the portal
+            pagination_config: Pagination configuration
+            page: Page number to fetch
+            session: HTTP session (optional)
+            csrf_token: CSRF token (optional)
             
         Returns:
-            True if pagination was successful, False if no more pages available
+            Page data or None if failed
         """
         pass
     
     @abstractmethod
-    def extract_pagination_info(
-        self, 
-        html_content: str, 
-        pagination_config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def get_pagination_type(self) -> str:
         """
-        Extract pagination information from the page content.
+        Get the pagination type identifier.
         
-        Args:
-            html_content: HTML content of the current page
-            pagination_config: Pagination configuration dictionary
-            
         Returns:
-            Dictionary containing pagination information
+            String identifier for pagination type
         """
         pass
     
     @abstractmethod
-    def is_last_page(
-        self, 
-        page_data: Any, 
-        pagination_config: Dict[str, Any]
-    ) -> bool:
+    def has_more_data(self, response_data: Dict[str, Any], page_size: int) -> bool:
         """
-        Determine if the current page is the last page.
+        Check if there's more data available.
         
         Args:
-            page_data: Data from the current page (type depends on handler)
-            pagination_config: Pagination configuration dictionary
+            response_data: Response data from current page
+            page_size: Expected page size
             
         Returns:
-            True if this is the last page, False otherwise
+            True if more data is available, False otherwise
         """
         pass
     
-    def get_max_pages(self, pagination_config: Dict[str, Any]) -> int:
+    @abstractmethod
+    def extract_data_from_response(self, response_data: Dict[str, Any]) -> list:
         """
-        Get the maximum number of pages to crawl.
+        Extract the actual data items from response.
         
         Args:
-            pagination_config: Pagination configuration dictionary
+            response_data: Response data from API
             
         Returns:
-            Maximum number of pages to crawl
+            List of data items
         """
-        return pagination_config.get('max_pages', 10)
-    
-    def should_continue_pagination(
-        self, 
-        current_page: int, 
-        pagination_config: Dict[str, Any]
-    ) -> bool:
-        """
-        Determine if pagination should continue.
-        
-        Args:
-            current_page: Current page number
-            pagination_config: Pagination configuration dictionary
-            
-        Returns:
-            True if pagination should continue, False otherwise
-        """
-        max_pages = self.get_max_pages(pagination_config)
-        return current_page <= max_pages
+        pass

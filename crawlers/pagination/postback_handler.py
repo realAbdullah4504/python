@@ -1,149 +1,101 @@
 """
-Postback pagination handler for ASP.NET WebForms postback pagination.
+Postback pagination handler for ASP.NET WebForms postback mechanisms.
 """
 
 from typing import Dict, Any, Optional
+from requests import Session
 from bs4 import BeautifulSoup
-from .base_handler import IPaginationHandler
 from utils.playwright_utils import simulate_postback
 from utils.bs4_utils import extract_pagination_links
+from .base_handler import IPaginationHandler
 
 
 class PostbackPaginationHandler(IPaginationHandler):
-    """
-    Handles ASP.NET WebForms postback pagination.
+    """Handles ASP.NET postback pagination."""
     
-    This handler manages pagination through JavaScript __doPostBack calls,
-    commonly used in ASP.NET WebForms applications like Comprar Gob AR.
-    """
-    
-    def handle_pagination(
-        self, 
-        page, 
-        current_page: int, 
-        pagination_config: Dict[str, Any]
-    ) -> bool:
+    def __init__(self, page, selectors: Dict):
         """
-        Handle ASP.NET postback pagination.
+        Initialize the postback handler.
         
         Args:
             page: Playwright page object
-            current_page: Current page number
-            pagination_config: Pagination configuration
-            
-        Returns:
-            True if pagination was successful, False if no more pages
-        """
-        try:
-            # Get pagination target from config or extract from page
-            pagination_target = pagination_config.get('target')
-            
-            if not pagination_target:
-                # Extract pagination target from current page
-                html_content = page.content()
-                soup = BeautifulSoup(html_content, "html.parser")
-                selectors = pagination_config.get('selectors', {})
-                _, extracted_target = extract_pagination_links(soup, selectors, return_target=True)
-                
-                if extracted_target:
-                    pagination_target = extracted_target
-                    print(f"Extracted pagination target: {pagination_target}")
-                else:
-                    # Use fallback target
-                    pagination_target = pagination_config.get('fallback_target', "ctl00$CPH1$GridListaPliegos")
-                    print(f"Using fallback pagination target: {pagination_target}")
-            
-            # Simulate postback to next page
-            argument = f"Page${current_page + 1}"
-            simulate_postback(page, pagination_target, argument)
-            
-            return True
-            
-        except Exception as e:
-            print(f"Error handling postback pagination: {e}")
-            return False
-    
-    def extract_pagination_info(
-        self, 
-        html_content: str, 
-        pagination_config: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Extract pagination information from the page content.
-        
-        Args:
-            html_content: HTML content of the current page
-            pagination_config: Pagination configuration
-            
-        Returns:
-            Dictionary containing pagination information
-        """
-        soup = BeautifulSoup(html_content, "html.parser")
-        selectors = pagination_config.get('selectors', {})
-        
-        # Extract pagination links and target
-        pagination_links, pagination_target = extract_pagination_links(
-            soup, selectors, return_target=True
-        )
-        
-        return {
-            'type': 'postback',
-            'target': pagination_target,
-            'pagination_links': pagination_links,
-            'max_pages': pagination_config.get('max_pages', 10)
-        }
-    
-    def is_last_page(
-        self, 
-        page_data: Any, 
-        pagination_config: Dict[str, Any]
-    ) -> bool:
-        """
-        Determine if the current page is the last page for postback pagination.
-        
-        For postback pagination, we typically check if we've reached max_pages
-        or if no new data is found.
-        
-        Args:
-            page_data: Data extracted from the current page (list of tenders)
-            pagination_config: Pagination configuration
-            
-        Returns:
-            True if this is the last page, False otherwise
-        """
-        # If no data found, we're likely on the last page
-        if not page_data or len(page_data) == 0:
-            return True
-        
-        # For postback pagination, we rely on max_pages limit
-        # The actual last page detection happens during crawling
-        return False
-    
-    def has_pagination_controls(
-        self, 
-        html_content: str, 
-        selectors: Dict[str, Any]
-    ) -> bool:
-        """
-        Check if the page has pagination controls.
-        
-        Args:
-            html_content: HTML content of the page
             selectors: CSS selectors for pagination elements
-            
-        Returns:
-            True if pagination controls are found, False otherwise
         """
-        soup = BeautifulSoup(html_content, "html.parser")
+        self.page = page
+        self.selectors = selectors
+        self.pagination_target = None
+        self._extract_pagination_target()
+    
+    def _extract_pagination_target(self) -> None:
+        """Extract the pagination target from the page."""
+        html = self.page.content()
+        soup = BeautifulSoup(html, "html.parser")
+        _, self.pagination_target = extract_pagination_links(soup, self.selectors, return_target=True)
         
-        # Look for pagination row
-        table = soup.find(selectors.get("main_table", "table"))
-        if not table:
-            return False
+        if not self.pagination_target:
+            print("Warning: Could not extract pagination target, will use fallback")
+    
+    def fetch_page(self, base_url: str, pagination_config: Dict, page: int = 1, 
+                   session: Optional[Session] = None, 
+                   csrf_token: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """
+        Navigate to a specific page using postback.
         
-        pagination_rows = table.find_all(
-            selectors.get("table_row", "tr"), 
-            class_=selectors.get("pagination_row_class", "pagination-gv")
-        )
+        For postback pagination, this method handles the navigation
+        and returns the current page content as HTML.
+        """
+        if page == 1:
+            # First page is already loaded, return current content
+            html = self.page.content()
+            return {"html": html, "page": page}
         
-        return len(pagination_rows) > 0
+        # Navigate to subsequent pages using postback
+        target = self._get_pagination_target(pagination_config)
+        argument = f"Page${page}"
+        
+        print(f"Executing postback: target={target}, argument={argument}")
+        simulate_postback(self.page, target, argument)
+        
+        # Return updated page content
+        html = self.page.content()
+        return {"html": html, "page": page}
+    
+    def get_pagination_type(self) -> str:
+        """Return the pagination type identifier."""
+        return "postback"
+    
+    def has_more_data(self, response_data: Dict[str, Any], page_size: int) -> bool:
+        """
+        For postback pagination, we can't easily determine if there's more data
+        from the response alone. This should be handled by the calling code
+        based on whether tenders were found on the current page.
+        """
+        return True  # Assume there might be more data
+    
+    def extract_data_from_response(self, response_data: Dict[str, Any]) -> list:
+        """
+        For postback pagination, the data extraction is handled by the
+        calling code using BeautifulSoup. This method returns the HTML.
+        """
+        return [response_data.get("html", "")]
+    
+    def _get_pagination_target(self, pagination_config: Dict) -> str:
+        """Get the pagination target, using fallback if needed."""
+        if self.pagination_target:
+            return self.pagination_target
+        
+        # Use fallback target from config
+        fallback_target = pagination_config.get("target", "ctl00$CPH1$GridListaPliegos")
+        print(f"Using fallback pagination target: {fallback_target}")
+        return fallback_target
+    
+    def update_page_reference(self, page) -> None:
+        """
+        Update the page reference when a new page object is available.
+        
+        Args:
+            page: New Playwright page object
+        """
+        self.page = page
+        self.pagination_target = None
+        self._extract_pagination_target()

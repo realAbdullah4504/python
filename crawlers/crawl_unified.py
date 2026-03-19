@@ -47,31 +47,27 @@ def _crawl_pattern_based_portal(url: str, portal_config: Dict, seen_tender_numbe
         print("Using DataTables pagination...")
         parsed_tenders = []
         pagination_config = portal_config.get('pagination', {})
+        max_pages = pagination_config.get('max_pages', 50)
         
         # Initialize DataTables pagination handler
-        pagination_handler = DataTablesPaginationHandler(url)
-        max_pages = pagination_handler.get_max_pages(pagination_config)
+        pagination_handler = DataTablesPaginationHandler()
         
         for page in range(1, max_pages + 1):
             print("Fetching page {}...".format(page))
             
-            response_data = pagination_handler.fetch_page_data(page, pagination_config)
+            response_data = pagination_handler.fetch_page(url, pagination_config, page)
             if not response_data:
                 break
             
             # Check if we have data
-            if not response_data.get('data') or len(response_data['data']) == 0:
+            data_items = pagination_handler.extract_data_from_response(response_data)
+            if not data_items or len(data_items) == 0:
                 print("No more data found, stopping pagination.")
-                break
-            
-            # Check if this is the last page
-            if pagination_handler.is_last_page(response_data, pagination_config):
-                print("Reached last page.")
                 break
             
             # Parse each tender from response
             page_tenders = []
-            for item in response_data['data']:
+            for item in data_items:
                 # Convert DataTables item to text format for parsing
                 tender_text = format_tender_item(item)
                 tender = parse_tender_block(tender_text, patterns)
@@ -88,6 +84,11 @@ def _crawl_pattern_based_portal(url: str, portal_config: Dict, seen_tender_numbe
             # Stop crawling if existing tender found
             if existing_found:
                 print(STOP_MESSAGE)
+                break
+            
+            # Check if this is the last page
+            if not pagination_handler.has_more_data(response_data, pagination_config['page_size']):
+                print("Reached last page.")
                 break
     else:
         print("Using static page parsing...")
@@ -137,26 +138,37 @@ def _crawl_table_based_portal(url: str, portal_config: Dict, seen_tender_numbers
     # Initialize processor
     deduplication_service = DeduplicationService(seen_tender_numbers)
     tender_processor = TenderProcessor(deduplication_service)
-    
-    # Initialize postback pagination handler
-    pagination_handler = PostbackPaginationHandler()
 
     playwright, browser, context = setup_browser_context()
     
     try:
         page = navigate_to_main_page(context, url)
         current_page = 1
+        max_pages = pagination.get("max_pages", 10)  # Get max_pages from config
         
-        # Extract pagination info from the page
-        html = page.content()
-        pagination_handler.extract_pagination_info(html, pagination)
-        max_pages = pagination_handler.get_max_pages(pagination)
+        # Initialize PostbackPaginationHandler
+        pagination_handler = PostbackPaginationHandler(page, selectors)
+        
+        if pagination.get("type") == "postback":
+            print(f"Extracted pagination target: {pagination_handler.pagination_target or 'fallback'}")
 
         while current_page <= max_pages:
             print(f"Crawling page: {current_page}")
 
-            html = page.content()
-            soup = BeautifulSoup(html, "html.parser")
+            # Handle pagination based on portal config
+            if pagination.get("type") == "postback":
+                if current_page > 1:
+                    # Navigate to next page using postback handler
+                    pagination_response = pagination_handler.fetch_page(url, pagination, current_page)
+                    if not pagination_response:
+                        break
+                
+                html = page.content()
+                soup = BeautifulSoup(html, "html.parser")
+            else:
+                # For other pagination types, break for now
+                print("Pagination handling not implemented for this type")
+                break
 
             # 🔹 SAME logic for every page (including page 1)
             tenders = extract_listing_rows(
@@ -187,13 +199,8 @@ def _crawl_table_based_portal(url: str, portal_config: Dict, seen_tender_numbers
 
             current_page += 1
 
-            # Handle pagination using the pagination handler
-            if pagination_handler.should_continue_pagination(current_page, pagination):
-                pagination_success = pagination_handler.handle_pagination(page, current_page, pagination)
-                if not pagination_success:
-                    print("Pagination failed or no more pages available")
-                    break
-            else:
+            # Check if we've reached the maximum pages limit
+            if current_page > max_pages:
                 print(f"Reached maximum pages limit ({max_pages}), stopping crawl")
                 break
 

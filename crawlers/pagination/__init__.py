@@ -1,5 +1,5 @@
 """
-Pagination handling components for different types of web pagination.
+Pagination handling components for different pagination mechanisms.
 """
 
 from .base_handler import IPaginationHandler

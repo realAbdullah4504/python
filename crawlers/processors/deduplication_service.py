@@ -20,7 +20,7 @@ class DeduplicationService:
     
     def is_duplicate(self, tender: TenderModel) -> bool:
         """
-        Check if a tender is a duplicate.
+        Check if a tender is a duplicate using only tender number.
         
         Args:
             tender: The tender to check
@@ -33,7 +33,7 @@ class DeduplicationService:
     
     def add_tender(self, tender: TenderModel) -> None:
         """
-        Add a tender to the seen set.
+        Add a tender to the seen set and persist to state file using only tender number.
         
         Args:
             tender: The tender to add to the seen set

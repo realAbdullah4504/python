@@ -4,8 +4,9 @@ Service for processing tender data and creating TenderModel instances.
 
 from typing import List, Dict, Tuple
 from models.tender import TenderModel
-from utils.file_utils import save_tender_to_ndjson
+from utils.file_utils import save_tenders_to_ndjson
 from .deduplication_service import DeduplicationService
+from utils.file_utils import save_seen_tender_numbers
 
 
 class TenderProcessor:
@@ -74,10 +75,11 @@ class TenderProcessor:
         new_tenders, existing_found = self.deduplication_service.process_tenders_with_deduplication(
             tender_models
         )
+
+        # Persist seen tenders to state file
+        save_seen_tender_numbers([tender.docId or tender.number for tender in new_tenders])
         
-        # Save new tenders to file
-        for tender in new_tenders:
-            save_tender_to_ndjson(tender.to_dict())
+        save_tenders_to_ndjson(new_tenders)
         
         new_count = len(new_tenders)
         return new_count, new_tenders, existing_found

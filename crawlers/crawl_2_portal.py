@@ -7,7 +7,8 @@ import os
 import requests
 from utils.playwright_utils import setup_browser_context, open_page
 from utils.config_resolver import load_config_with_refs, get_portal_config
-from utils.web_utils import load_existing_tender_numbers, save_tender_to_ndjson, ensure_output_directory, extract_csrf_token_and_session
+from utils.web_utils import save_tender_to_ndjson, ensure_output_directory, extract_csrf_token_and_session
+from utils.file_utils import load_seen_tender_numbers
 from utils.bs4_utils import extract_tender_blocks, parse_tender_block, format_tender_item
 from models.tender import TenderModel
 
@@ -197,7 +198,7 @@ def main() -> None:
     config = load_config_with_refs("config/portals.json")
     
     all_tenders = []
-    seen_tender_numbers = load_existing_tender_numbers("outputs/tenders.ndjson")
+    seen_tender_numbers = load_seen_tender_numbers()
     
     # Loop over all portals
     for portal in config["portals"]:

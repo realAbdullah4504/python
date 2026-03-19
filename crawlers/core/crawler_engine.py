@@ -6,7 +6,7 @@ from typing import Dict, List, Set, Optional
 
 from models.tender import TenderModel
 from utils.config_resolver import load_config_with_refs, get_portal_config
-from utils.file_utils import load_existing_tender_numbers
+from utils.file_utils import load_seen_tender_numbers
 
 from crawlers.strategies import CrawlerFactory
 
@@ -27,7 +27,7 @@ class CrawlerEngine:
     def run(self) -> List[TenderModel]:
         """Run crawling for all active portals and return collected tenders."""
         config = load_config_with_refs(self.config_path)
-        seen_tender_numbers = load_existing_tender_numbers(self.output_path)
+        seen_tender_numbers = load_seen_tender_numbers()
 
         all_tenders: List[TenderModel] = []
 

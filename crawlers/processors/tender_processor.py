@@ -18,7 +18,7 @@ class TenderProcessor:
         Args:
             deduplication_service: Service for handling deduplication
         """
-        self.dedlication_service = deduplication_service
+        self.deduplication_service = deduplication_service
     
     def create_tender_from_dict(
         self, 
@@ -71,7 +71,7 @@ class TenderProcessor:
             tender_models.append(tender)
         
         # Process with deduplication
-        new_tenders, existing_found = self.dedlication_service.process_tenders_with_deduplication(
+        new_tenders, existing_found = self.deduplication_service.process_tenders_with_deduplication(
             tender_models
         )
         

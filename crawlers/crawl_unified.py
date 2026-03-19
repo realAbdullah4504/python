@@ -15,6 +15,7 @@ from utils.bs4_utils import (
 )
 from models.tender import TenderModel
 from crawlers.processors import TenderProcessor, DeduplicationService
+from crawlers.pagination import DataTablesPaginationHandler, PostbackPaginationHandler
 
 # Constants
 STOP_MESSAGE = "Stopping crawl due to existing tender found"
@@ -26,71 +27,6 @@ def get_portal_by_url(portals: List[Dict], url: str) -> Optional[Dict]:
         if url in portal.get('listing_urls', []):
             return portal
     return None
-
-
-def fetch_datatables_page(base_url: str, pagination_config: Dict, page: int = 1, session: requests.Session = None, csrf_token: str = None) -> Optional[Dict]:
-    """
-    Fetch a single page of data from DataTables API.
-    """
-    from urllib.parse import urljoin
-    
-    if not session or not csrf_token:
-        csrf_token, session = extract_csrf_token_and_session(base_url)
-    
-    endpoint = pagination_config['endpoint']
-    # Ensure proper URL construction
-    if not endpoint.startswith('/'):
-        endpoint = '/' + endpoint
-    url = urljoin(base_url, endpoint)
-    
-    print("Fetching from URL: {}".format(url))
-    
-    # DataTables request payload
-    payload = {
-        "draw": page,
-        "start": (page - 1) * pagination_config['page_size'],
-        "length": pagination_config['page_size'],
-        "search": {"value": "", "regex": False},
-        "order": [{"column": 0, "dir": "desc"}],
-        "columns": [{"data": "0", "name": "", "searchable": True, "orderable": False, "search": {"value": "", "regex": False}}],
-        "formBusqueda": {
-            "qa": "",
-            "nroDoca": "",
-            "anioDoca": "",
-            "temaBase": "K76",
-            "temaPrincipal_a": "K76",
-            "subTema_a": "",
-            "fechaDesde_a": "",
-            "fechaHasta_a": ""
-        }
-    }
-    
-    headers = {
-        'Content-Type': 'application/json; charset=utf-8',
-        'X-CSRF-TOKEN': csrf_token,
-        'Referer': base_url,
-        'Origin': 'https://www.csjn.gov.ar'
-    }
-    
-    try:
-        response = session.post(url, json=payload, headers=headers, timeout=60)
-        print("Response status: {}".format(response.status_code))
-        if response.status_code != 200:
-            print("Response content: {}".format(response.text[:500]))
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.Timeout:
-        print("Timeout error fetching page {}: Request took too long".format(page))
-        return None
-    except requests.exceptions.SSLError as e:
-        print("SSL error fetching page {}: {}".format(page, e))
-        return None
-    except requests.exceptions.ConnectionError as e:
-        print("Connection error fetching page {}: {}".format(page, e))
-        return None
-    except requests.RequestException as e:
-        print("Error fetching page {}: {}".format(page, e))
-        return None
 
 
 def _crawl_pattern_based_portal(url: str, portal_config: Dict, seen_tender_numbers: Set[str]) -> List[TenderModel]:
@@ -111,18 +47,26 @@ def _crawl_pattern_based_portal(url: str, portal_config: Dict, seen_tender_numbe
         print("Using DataTables pagination...")
         parsed_tenders = []
         pagination_config = portal_config.get('pagination', {})
-        max_pages = pagination_config.get('max_pages', 50)
+        
+        # Initialize DataTables pagination handler
+        pagination_handler = DataTablesPaginationHandler(url)
+        max_pages = pagination_handler.get_max_pages(pagination_config)
         
         for page in range(1, max_pages + 1):
             print("Fetching page {}...".format(page))
             
-            response_data = fetch_datatables_page(url, pagination_config, page)
+            response_data = pagination_handler.fetch_page_data(page, pagination_config)
             if not response_data:
                 break
             
             # Check if we have data
             if not response_data.get('data') or len(response_data['data']) == 0:
                 print("No more data found, stopping pagination.")
+                break
+            
+            # Check if this is the last page
+            if pagination_handler.is_last_page(response_data, pagination_config):
+                print("Reached last page.")
                 break
             
             # Parse each tender from response
@@ -144,11 +88,6 @@ def _crawl_pattern_based_portal(url: str, portal_config: Dict, seen_tender_numbe
             # Stop crawling if existing tender found
             if existing_found:
                 print(STOP_MESSAGE)
-                break
-            
-            # Check if this is the last page
-            if len(response_data['data']) < pagination_config['page_size']:
-                print("Reached last page.")
                 break
     else:
         print("Using static page parsing...")
@@ -198,25 +137,20 @@ def _crawl_table_based_portal(url: str, portal_config: Dict, seen_tender_numbers
     # Initialize processor
     deduplication_service = DeduplicationService(seen_tender_numbers)
     tender_processor = TenderProcessor(deduplication_service)
+    
+    # Initialize postback pagination handler
+    pagination_handler = PostbackPaginationHandler()
 
     playwright, browser, context = setup_browser_context()
     
     try:
         page = navigate_to_main_page(context, url)
         current_page = 1
-        max_pages = pagination.get("max_pages", 10)  # Get max_pages from config
         
-        # Extract pagination links and target
+        # Extract pagination info from the page
         html = page.content()
-        soup = BeautifulSoup(html, "html.parser")
-        _, pagination_target = extract_pagination_links(soup, selectors, return_target=True)
-        
-        # Use fallback target if none found
-        if not pagination_target:
-            pagination_target = pagination.get("target", "ctl00$CPH1$GridListaPliegos")
-            print(f"Using fallback pagination target: {pagination_target}")
-        else:
-            print(f"Extracted pagination target: {pagination_target}")
+        pagination_handler.extract_pagination_info(html, pagination)
+        max_pages = pagination_handler.get_max_pages(pagination)
 
         while current_page <= max_pages:
             print(f"Crawling page: {current_page}")
@@ -253,17 +187,14 @@ def _crawl_table_based_portal(url: str, portal_config: Dict, seen_tender_numbers
 
             current_page += 1
 
-            # Handle pagination based on portal config
-            if pagination.get("type") == "postback":
-                if current_page > max_pages:
-                    print(f"Reached maximum pages limit ({max_pages}), stopping crawl")
+            # Handle pagination using the pagination handler
+            if pagination_handler.should_continue_pagination(current_page, pagination):
+                pagination_success = pagination_handler.handle_pagination(page, current_page, pagination)
+                if not pagination_success:
+                    print("Pagination failed or no more pages available")
                     break
-                target = pagination_target  # Use extracted target
-                argument = f"Page${current_page}"
-                simulate_postback(page, target, argument)
             else:
-                # For other pagination types, break for now
-                print("Pagination handling not implemented for this type")
+                print(f"Reached maximum pages limit ({max_pages}), stopping crawl")
                 break
 
     finally:

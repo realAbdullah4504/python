@@ -1,0 +1,17 @@
+2026-03-24 19:08:51,281 - __main__ - INFO - Found 1 active postback portals
+2026-03-24 19:08:51,281 - __main__ - INFO - Initialized PostbackDetailsCrawler with 1 postback portals
+2026-03-24 19:08:51,282 - __main__ - INFO - Starting postback details crawler workflow
+2026-03-24 19:08:51,286 - __main__ - INFO - Found 80 tenders needing details
+2026-03-24 19:08:51,288 - __main__ - INFO - Filtered 40 tenders from 80 total for postback processing
+2026-03-24 19:08:51,288 - __main__ - INFO - Processing portal: Comprar Gob AR
+2026-03-24 19:08:51,289 - __main__ - INFO - Processing tenders for URL: https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=
+2026-03-24 19:08:52,111 - __main__ - INFO - Extracting pagination target from: https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=
+2026-03-24 19:08:55,410 - __main__ - INFO - Extracted pagination target: None
+2026-03-24 19:08:55,422 - __main__ - WARNING - No tenders found for source URL: https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=
+2026-03-24 19:08:55,560 - __main__ - INFO - Portal Comprar Gob AR - URL https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=: 0 tenders processed
+2026-03-24 19:08:55,560 - __main__ - INFO - Processing tenders for URL: https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs=
+2026-03-24 19:08:56,151 - __main__ - INFO - Extracting pagination target from: https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs=
+2026-03-24 19:08:59,108 - __main__ - INFO - Extracted pagination target: None
+2026-03-24 19:08:59,121 - __main__ - WARNING - No tenders found for source URL: https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs=
+2026-03-24 19:08:59,242 - __main__ - INFO - Portal Comprar Gob AR - URL https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs=: 0 tenders processed
+2026-03-24 19:08:59,243 - __main__ - INFO - Postback processing workflow completed: 0 tenders processed

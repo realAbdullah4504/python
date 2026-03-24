@@ -39,6 +39,8 @@ class TenderModel(BaseModel):
     # Category information
     category: Optional[str] = Field("", description="Category or classification of the tender")
     
+    # Extracted content
+    full_text: Optional[str] = Field(None, description="Full text extracted from tender details or document")
     # Metadata
     created_at: str = Field(..., description="Timestamp when this record was created")
     

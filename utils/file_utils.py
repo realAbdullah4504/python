@@ -80,6 +80,59 @@ def save_seen_tender_numbers(tender_numbers: Set[str], filename: str = "outputs/
     except Exception as e:
         print(f"Error saving tender numbers to state file: {e}")
 
+def update_tender_with_details(updated_tender: Dict, filename: str = "outputs/tenders.ndjson") -> bool:
+    """Update existing tender with details in the NDJSON file"""
+    try:
+        # Load all tenders
+        tenders = []
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    tenders.append(json.loads(line))
+        
+        # Find and update the matching tender
+        updated = False
+        for tender in tenders:
+            if tender.get('number') == updated_tender.get('number'):
+                tender.update(updated_tender)
+                tender["updated_at"] = datetime.now().isoformat()
+                updated = True
+                break
+        
+        if not updated:
+            print(f"Tender {updated_tender.get('number')} not found for update")
+            return False
+        
+        # Rewrite the entire file
+        with open(filename, 'w', encoding='utf-8') as f:
+            for tender in tenders:
+                json.dump(tender, f, ensure_ascii=False)
+                f.write('\n')
+                
+    except Exception as e:
+        print(f"Error updating tender: {e}")
+        return False
+    return True
+
+
+def load_tenders_needing_details(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
+    """Load tenders that don't have details yet"""
+    tenders_needing_details = []
+    
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    tender = json.loads(line)
+                    # Check if tender already has full_text details
+                    if not tender.get('full_text'):
+                        tenders_needing_details.append(tender)
+    except FileNotFoundError:
+        pass
+    
+    print(f"Found {len(tenders_needing_details)} tenders needing details")
+    return tenders_needing_details
+
 
 def load_portal_config(config_path: str = "config/portals.json") -> Dict:
     """Load portal configuration from JSON file."""

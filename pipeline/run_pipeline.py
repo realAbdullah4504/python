@@ -13,7 +13,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from crawlers.crawl_listings import crawl_all_tenders
-from crawlers.crawl_details import load_tenders_from_ndjson, process_tenders, load_processed_tenders_from_ndjson
+from crawlers.crawl_details import load_tenders_needing_details, process_tenders
 from analysis.analyze_pci import main as analyze_main
 
 # Load configuration
@@ -64,13 +64,10 @@ def main():
     
     # Step 2: Crawl details
     print("\n=== Step 2: Crawling tender details ===")
-    loaded_tenders = load_tenders_from_ndjson()
-    if loaded_tenders:
-        # Load already processed tenders to avoid reprocessing
-        processed_tenders_numbers = load_processed_tenders_from_ndjson()
-        
+    tenders_needing_details = load_tenders_needing_details()
+    if tenders_needing_details:
         # Process all tenders (or limit to specific number if needed)
-        # max_tenders = len(loaded_tenders)
+        # max_tenders = len(tenders_needing_details)
         max_tenders = 10
         
         # Use the first active portal URL for processing details
@@ -79,10 +76,10 @@ def main():
             print("No active portal URLs found for processing details")
             return
             
-        process_tenders(loaded_tenders, process_url, max_tenders, list(processed_tenders_numbers))
-        print(f"Processed details for {len(loaded_tenders)} tenders")
+        process_tenders(tenders_needing_details, process_url, max_tenders)
+        print(f"Processed details for {len(tenders_needing_details)} tenders")
     else:
-        print("No tenders found to process details")
+        print("No tenders found that need details")
         return
     
     # Step 3: Analyze PCI compliance

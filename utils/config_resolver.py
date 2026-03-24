@@ -70,4 +70,7 @@ def load_config_with_refs(config_path: str) -> Dict[str, Any]:
 
 def get_portal_config(portal: Dict[str, Any]) -> Dict[str, Any]:
     """Extract resolved configuration for a specific portal"""
-    return portal.get("config", {})
+    config = portal.get("config", {})
+    # Include portal name in the config for crawlers to use
+    config["name"] = portal.get("name", "Unknown")
+    return config

@@ -3,25 +3,6 @@ from typing import List, Dict, Set
 from datetime import datetime
 import os
 
-
-def load_existing_tender_numbers(filename: str = "outputs/tenders.ndjson") -> Set[str]:
-    """Load existing tender docIds from NDJSON file"""
-    existing_docids = set()
-    try:
-        with open(filename, "r", encoding="utf-8") as f:
-            for line in f:
-                if line.strip():
-                    data = json.loads(line)
-                    # Use docId for deduplication, fallback to number for backward compatibility
-                    if "docId" in data and data["docId"]:
-                        existing_docids.add(data["docId"])
-                    elif "number" in data:
-                        existing_docids.add(data["number"])
-    except FileNotFoundError:
-        pass
-    return existing_docids
-
-
 def save_tenders_to_ndjson(tenders: List, filename: str = "outputs/tenders.ndjson") -> bool:
     """Save a list of tenders to NDJSON file (append mode)"""
     try:
@@ -67,34 +48,6 @@ def load_tenders_from_ndjson(filename: str = "outputs/tenders.ndjson") -> List[D
 
     print(f"Loaded {len(tenders)} tenders from {filename}")
     return tenders
-
-
-def load_processed_tenders_from_ndjson(filename: str = "outputs/enriched_tenders.ndjson") -> set[str]:
-    """Load processed tenders from NDJSON file"""
-    existing_numbers = set()
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            
-            # Process tender records
-            for line in lines:
-                if line.strip():
-                    data = json.loads(line)
-                    existing_numbers.add(data.get('number'))
-        
-    except FileNotFoundError:
-        print(f"File {filename} not found. Starting with empty set.")
-    
-    print(f"Loaded {len(existing_numbers)} processed tenders from {filename}")
-    return existing_numbers
-
-
-def save_enriched_tender(tender: Dict, filename: str = "outputs/enriched_tenders.ndjson") -> None:
-    """Save enriched tender to NDJSON file"""
-    with open(filename, 'a', encoding='utf-8') as f:
-        json.dump(tender, f, ensure_ascii=False)
-        f.write('\n')
-        f.flush()  # Ensure immediate write to disk
 
 
 def load_seen_tender_numbers(filename: str = "outputs/seen_tenders.ndjson") -> Set[str]:

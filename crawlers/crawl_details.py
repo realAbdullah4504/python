@@ -92,6 +92,7 @@ def filter_postback_tenders(tenders: List[Dict], postback_portals: List[Dict]) -
         # Check if this tender's portal uses postback processing
         for portal in postback_portals:
             if tender_portal == portal.get("name"):
+                print(f"Tender portal: {tender_portal}")
                 # Check if tender has postback fields
                 if tender.get("pagination_argument") and tender.get("pagination_target"):
                     postback_tenders.append(tender)

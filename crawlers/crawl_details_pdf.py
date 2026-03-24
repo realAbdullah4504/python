@@ -183,9 +183,11 @@ def filter_pdf_tenders(tenders: List[Dict], pdf_portals: List[Dict]) -> List[Dic
         
         # Check if this tender's portal uses PDF processing
         for portal in pdf_portals:
+            print(f"Portal name: {portal.get('name')} | Tender portal: {tender_portal}")
             if tender_portal == portal.get("name"):
                 # For Unknown portal, check if details_url exists
                 details_url = tender.get("details_url")
+                print(f"Details URL: {details_url}")
                 if details_url:
                     pdf_tenders.append(tender)
                     break

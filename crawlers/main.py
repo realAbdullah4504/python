@@ -1,7 +1,4 @@
 from typing import List, Dict, Set
-
-from models.tender import TenderModel
-from crawlers.strategies import CrawlerFactory
 from crawlers.core import CrawlerEngine
 
 def main() -> None:

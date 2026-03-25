@@ -89,13 +89,12 @@ class PostbackDetailsCrawler:
         tender_number = tender.get('number', 'unknown')
         self.logger.info(f"Processing tender {tender_number} from {source_url}")
         
-        if not tender.get("pagination_argument"):
-            self.logger.error(f"Tender {tender_number} missing pagination_argument")
-            raise KeyError("pagination_argument")
+        if not tender.get("page_no"):
+            self.logger.error(f"Tender {tender_number} missing page_no")
+            raise KeyError("page_no")
         
         target = tender["details_url"]
-        argument = tender.get("page_no")
-        print(argument,"dsadddddddddddddddddd")
+        argument = f"Page{tender.get('page_no')}"
         pagination_target = tender.get("pagination_target") or self.pagination_target
         
         if not pagination_target:
@@ -154,7 +153,7 @@ class PostbackDetailsCrawler:
             
             self.pagination_target = self._extract_pagination_target(context, source_url, portal_config)
             
-            url_tenders = [t for t in tenders if t.get("source_url") == source_url]
+            url_tenders = [t for t in tenders if t.get("url") == source_url]
             if not url_tenders:
                 self.logger.warning(f"No tenders found for source URL: {source_url}")
                 return 0

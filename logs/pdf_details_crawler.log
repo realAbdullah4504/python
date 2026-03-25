@@ -1,0 +1,9 @@
+2026-03-25 17:30:13,160 - __main__ - INFO - Found 1 active PDF portals
+2026-03-25 17:30:13,160 - __main__ - INFO - Initialized PdfDetailsCrawler with 1 PDF portals, timeout: 60s
+2026-03-25 17:30:13,160 - __main__ - INFO - Starting PDF details crawler workflow
+2026-03-25 17:30:13,161 - __main__ - INFO - Found 80 tenders needing details
+2026-03-25 17:30:13,161 - __main__ - INFO - Filtered 40 tenders from 80 total for PDF processing
+2026-03-25 17:30:13,161 - __main__ - INFO - Starting to process 40 tenders (max: 40)
+2026-03-25 17:30:13,161 - __main__ - INFO - Processing tender 1/40: 989/2025
+2026-03-25 17:30:13,161 - __main__ - INFO - Processing tender 989/2025 from CSJN Adquisiciones
+2026-03-25 17:30:13,161 - __main__ - INFO - Processing PDF URL: https://www.csjn.gov.ar/documentos/descargar?ID=157687

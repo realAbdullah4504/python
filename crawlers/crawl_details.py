@@ -94,7 +94,8 @@ class PostbackDetailsCrawler:
             raise KeyError("page_no")
         
         target = tender["details_url"]
-        argument = f"Page{tender.get('page_no')}"
+        argument = f"Page${tender.get('page_no')}"
+        print(argument,"sadasdasdasdasd")
         pagination_target = tender.get("pagination_target") or self.pagination_target
         
         if not pagination_target:

@@ -22,7 +22,8 @@ class PostbackDetailsCrawler:
         self.logger = logging.getLogger(__name__)
         self.config = load_config_with_refs("config/portals.json")
         self.postback_portals = self._get_postback_portals()
-        self.pagination_target = None
+        self.pagination_target=None
+        self.argument=None
         self.logger.info(f"Initialized PostbackDetailsCrawler with {len(self.postback_portals)} postback portals")
     
     def _get_postback_portals(self) -> List[Dict]:
@@ -93,7 +94,8 @@ class PostbackDetailsCrawler:
             raise KeyError("pagination_argument")
         
         target = tender["details_url"]
-        argument = tender["pagination_argument"]
+        argument = tender.get("page_no")
+        print(argument,"dsadddddddddddddddddd")
         pagination_target = tender.get("pagination_target") or self.pagination_target
         
         if not pagination_target:

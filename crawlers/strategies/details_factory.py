@@ -40,6 +40,33 @@ class DetailsFactory:
             return None
     
     @classmethod
+    def create_crawler(cls, portal_config: Dict) -> Optional[IDetailsStrategy]:
+        """
+        Create appropriate details strategy based on portal configuration.
+        
+        Args:
+            portal_config: Portal configuration dictionary
+            
+        Returns:
+            IDetailsStrategy instance appropriate for the portal or None
+            
+        Raises:
+            ValueError: If no suitable strategy is found
+        """
+        # Try each strategy to see if it can handle the portal
+        for strategy_type, strategy_class in cls._strategies.items():
+            strategy = strategy_class()
+            # Check for portal-specific handling first, then general handling
+            if (hasattr(strategy, 'can_handle_portal') and strategy.can_handle_portal(portal_config)) or \
+               (hasattr(strategy, 'can_handle') and strategy.can_handle(portal_config)):
+                print(f"Selected {strategy_type} details strategy")
+                return strategy
+        
+        # If no strategy can handle, return None (details are optional)
+        print("No suitable details strategy found for portal configuration")
+        return None
+    
+    @classmethod
     def create_strategy_for_portal(cls, portal_config: Dict) -> Optional[IDetailsStrategy]:
         """
         Create strategy based on portal configuration.

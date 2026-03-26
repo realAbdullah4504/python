@@ -104,44 +104,7 @@ class PostbackNavigator:
         finally:
             detail_page.close()
     
-    def process_tenders_for_url(self, tenders: list, source_url: str, portal_config: dict) -> int:
-        """
-        Process tenders for a specific listing URL.
         
-        Args:
-            tenders: List of tender dictionaries
-            source_url: Source listing URL
-            portal_config: Portal configuration
-            
-        Returns:
-            Number of tenders to process
-        """
-        print(f"Processing tenders for URL: {source_url}")
-        playwright, browser, context = self.setup_browser()
-        
-        try:
-            portal_name = portal_config.get("name", "unknown")
-            print(f"Using portal configuration for: {portal_name}")
-            
-            self.pagination_target = self.extract_pagination_target(context, source_url, portal_config)
-            
-            url_tenders = [t for t in tenders if t.get("url") == source_url]
-            if not url_tenders:
-                print(f"No tenders found for source URL: {source_url}")
-                return 0
-            
-            print(f"Found {len(url_tenders)} tenders to process for {source_url}")
-            
-            # Update tenders with pagination target if missing
-            for tender in url_tenders:
-                if not tender.get("pagination_target") and self.pagination_target:
-                    tender["pagination_target"] = self.pagination_target
-            
-            return len(url_tenders)  # Return count for processing
-            
-        finally:
-            cleanup_browser_resources(playwright, browser)
-    
     def validate_tender_navigation(self, tender: dict) -> bool:
         """
         Validate tender has required navigation fields.

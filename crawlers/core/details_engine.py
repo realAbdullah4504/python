@@ -2,10 +2,11 @@
 Details engine orchestrator for processing tender details.
 """
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 from crawlers.interfaces import IDetailsStrategy
 from crawlers.strategies import DetailsFactory
 from utils.file_utils import load_tenders_needing_details, update_tender_with_details
+from utils.config_resolver import load_config_with_refs, get_portal_config
 
 
 class DetailsEngine:
@@ -13,107 +14,49 @@ class DetailsEngine:
 
     def __init__(
         self,
+        config_path: str = "config/portals.json",
         details_factory: Optional[type] = None,
     ):
-        """Initialize details engine with factory."""
+        """Initialize details engine with factory and config."""
+        self.config_path = config_path
         self.details_factory = details_factory or DetailsFactory
 
-    def get_strategy_for_tender(self, tender: Dict) -> Optional[IDetailsStrategy]:
+    def _process_portal_details(self, portal_config: Dict, tenders: List[Dict]) -> int:
         """
-        Get the appropriate strategy for processing a tender.
+        Process details for tenders from a specific portal using strategy selected by the factory.
         
         Args:
-            tender: Tender dictionary
-            
-        Returns:
-            Strategy instance that can handle the tender or None
-        """
-        # Try each strategy to see if it can handle the tender
-        for strategy_type in self.details_factory.get_available_strategies():
-            strategy = self.details_factory.create_strategy(strategy_type)
-            if strategy and strategy.can_handle(tender):
-                print(f"Selected strategy '{strategy_type}' for tender {tender.get('number', 'unknown')}")
-                return strategy
-        
-        print(f"No strategy found for tender {tender.get('number', 'unknown')}")
-        return None
-    
-    def filter_tenders_by_strategy(self, tenders: List[Dict]) -> Dict[str, List[Dict]]:
-        """
-        Filter tenders by the strategies that can handle them.
-        
-        Args:
-            tenders: List of tender dictionaries
-            
-        Returns:
-            Dictionary mapping strategy types to lists of tenders they can handle
-        """
-        strategy_tenders = {}
-        
-        for strategy_type in self.details_factory.get_available_strategies():
-            strategy = self.details_factory.create_strategy(strategy_type)
-            if strategy:
-                filtered_tenders = strategy.filter_tenders(tenders)
-                if filtered_tenders:
-                    strategy_tenders[strategy_type] = filtered_tenders
-                    print(f"Strategy '{strategy_type}' can handle {len(filtered_tenders)} tenders")
-        
-        return strategy_tenders
-    
-    def process_tender(self, tender: Dict) -> Dict:
-        """
-        Process a single tender using the appropriate strategy.
-        
-        Args:
-            tender: Tender dictionary to process
-            
-        Returns:
-            Enriched tender dictionary or original if processing fails
-        """
-        strategy = self.get_strategy_for_tender(tender)
-        if not strategy:
-            print(f"No strategy available for tender {tender.get('number', 'unknown')}")
-            return tender
-        
-        return strategy.process_tender(tender)
-    
-    def process_tenders(self, tenders: List[Dict], max_tenders: int = None) -> int:
-        """
-        Process multiple tenders and save enriched data.
-        
-        Args:
+            portal_config: Portal configuration dictionary
             tenders: List of tender dictionaries to process
-            max_tenders: Maximum number of tenders to process (None for all)
             
         Returns:
             Number of successfully processed tenders
         """
-        if max_tenders:
-            tenders = tenders[:max_tenders]
-        
-        processed_count = 0
-        total_tenders = len(tenders)
-        print(f"Starting to process {total_tenders} tenders")
-        
-        for i, tender in enumerate(tenders, 1):
-            tender_number = tender.get('number', 'unknown')
-            print(f"Processing tender {i}/{total_tenders}: {tender_number}")
+        try:
+            details_strategy = self.details_factory.create_crawler(portal_config)
+            if not details_strategy:
+                print("No details strategy available for portal")
+                return 0
             
-            try:
-                enriched_tender = self.process_tender(tender)
-                update_tender_with_details(enriched_tender)
-                processed_count += 1
-                print(f"Successfully processed and saved tender {tender_number}")
-            except Exception as e:
-                print(f"Error processing tender {tender_number}: {e}")
-                continue
-        
-        print(f"Completed processing {processed_count}/{total_tenders} tenders successfully")
-        return processed_count
-    
+            processed_count = 0
+            for tender in tenders:
+                try:
+                    enriched_tender = details_strategy.process_tender(tender)
+                    update_tender_with_details(enriched_tender)
+                    processed_count += 1
+                    print(f"Successfully processed tender {tender.get('number', 'unknown')}")
+                except Exception as e:
+                    print(f"Error processing tender {tender.get('number', 'unknown')}: {e}")
+                    continue
+            
+            return processed_count
+        except Exception as e:
+            print(f"Error creating details strategy: {e}")
+            return 0
+
     def run(self, max_tenders: int = None) -> Dict[str, int]:
         """
-        Run the complete details extraction workflow.
+        Run details extraction for all active portals and return summary metadata.
         
         Args:
             max_tenders: Maximum number of tenders to process (None for all)
@@ -121,49 +64,43 @@ class DetailsEngine:
         Returns:
             Summary statistics of processing results
         """
-        print("Starting details extraction workflow")
-        
-        # Load tenders needing details
+        config = load_config_with_refs(self.config_path)
         tenders = load_tenders_needing_details()
+        
         if not tenders:
             print("No tenders found needing details")
-            return {"total_tenders": 0, "processed": 0}
-        
-        print(f"Found {len(tenders)} tenders needing details")
+            return {"total_tenders": 0, "portals_processed": 0, "processed": 0}
         
         if max_tenders:
             tenders = tenders[:max_tenders]
-            print(f"Processing limited to {len(tenders)} tenders")
         
-        # Filter tenders by strategy
-        strategy_tenders = self.filter_tenders_by_strategy(tenders)
-        
-        if not strategy_tenders:
-            print("No tenders found for available strategies")
-            return {"total_tenders": len(tenders), "processed": 0}
-        
-        # Process tenders by strategy
-        total_processed = 0
-        for strategy_type, strategy_tender_list in strategy_tenders.items():
-            print(f"Processing {len(strategy_tender_list)} tenders with strategy '{strategy_type}'")
+        summary = {"total_tenders": len(tenders), "portals_processed": 0, "processed": 0}
+
+        for portal in config.get("portals", []):
+            if not portal.get("active", True):
+                print(f"Skipping inactive portal: {portal['name']}")
+                continue
+
+            print(f"Processing portal: {portal['name']} ({portal['country']})")
+            portal_config = get_portal_config(portal)
             
-            processed = self.process_tenders(strategy_tender_list)
-            total_processed += processed
-        
-        summary = {
-            "total_tenders": len(tenders),
-            "processed": total_processed,
-            "strategies_used": list(strategy_tenders.keys())
-        }
-        
-        print(f"Details extraction workflow completed: {summary}")
+            # Filter tenders for this portal
+            portal_tenders = [t for t in tenders if t.get('portal_name') == portal.get('name')]
+            
+            if not portal_tenders:
+                print(f"No tenders found for portal: {portal['name']}")
+                continue
+            
+            print(f"Found {len(portal_tenders)} tenders needing details for {portal['name']}")
+            
+            # Process portal tenders using factory
+            processed_count = self._process_portal_details(portal_config, portal_tenders)
+            
+            # Update summary
+            summary["processed"] += processed_count
+            summary["portals_processed"] += 1
+            
+            print(f"Processed {processed_count}/{len(portal_tenders)} tenders for {portal['name']}")
+
+        print(f"Total tenders processed across all portals: {summary['processed']}")
         return summary
-    
-    def get_available_strategies(self) -> List[str]:
-        """
-        Get list of available strategy types.
-        
-        Returns:
-            List of strategy type identifiers
-        """
-        return self.details_factory.get_available_strategies()

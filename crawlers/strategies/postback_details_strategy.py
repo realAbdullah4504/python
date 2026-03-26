@@ -124,22 +124,4 @@ class PostbackDetailsStrategy(IDetailsStrategy):
             from utils.playwright_utils import cleanup_browser_resources
             cleanup_browser_resources(playwright, browser)
     
-    def process_tenders_for_url(self, tenders: List[Dict], source_url: str) -> int:
-        """
-        Process tenders for a specific listing URL.
-        
-        Args:
-            tenders: List of tender dictionaries
-            source_url: Source listing URL
-            
-        Returns:
-            Number of tenders processed
-        """
-        # Get portal configuration for this URL
-        portal_config = next((p for p in self.postback_portals if source_url in p.get("listing_urls", [])), None)
-        if not portal_config:
-            print(f"No portal configuration found for URL: {source_url}")
-            return 0
-        
-        # Setup browser context for URL processing
-        return self.navigator.process_tenders_for_url(tenders, source_url, portal_config)
+    

@@ -46,10 +46,22 @@ The `CrawlerEngine` class is the main orchestrator for the crawling workflow.
 - Coordinate crawling across multiple portals and URLs
 - Handle seen tender tracking to avoid duplicates
 - Provide error handling and logging
+- Memory-efficient processing with portal-by-portal saving
 
 **Main Methods**:
-- `run()`: Execute crawling for all active portals
+- `run()`: Execute crawling for all active portals and returns summary statistics
 - `_crawl_single_url()`: Crawl individual URLs using selected strategy
+- `_save_portal_tenders()`: Save tenders from a single portal to storage
+
+**Memory Management**:
+- Processes portals sequentially to minimize memory usage
+- Saves tenders immediately after each portal completes processing
+- Only stores temporary portal data in memory during processing
+
+**Error Recovery**:
+- Process crash only loses current portal's progress
+- Previous portals are already saved to storage
+- Provides robust recovery mechanism for large-scale crawling operations
 
 ### 3. Strategy Pattern Implementation
 
@@ -173,7 +185,8 @@ tenders = crawl_all_tenders(url, portal_config, seen_numbers)
 
 # Option 2: Using engine (recommended)
 engine = CrawlerEngine()
-all_tenders = engine.run()
+result = engine.run()
+print(f"Processed {result['total_tenders']} tenders from {result['portals_processed']} portals")
 ```
 
 ### Adding New Portal Support
@@ -238,8 +251,10 @@ The system outputs tender data in standardized format:
 
 ## Performance Considerations
 
-- **Concurrent Processing**: Can be extended for parallel crawling
-- **Memory Management**: Efficient handling of large datasets
+- **Memory Efficiency**: Portal-by-portal processing minimizes memory footprint
+- **Incremental Saving**: Tenders are saved immediately after each portal completes
+- **Error Recovery**: Process crashes only affect current portal, preserving previous work
+- **Concurrent Processing**: Can be extended for parallel crawling of independent portals
 - **Caching**: Seen tender tracking reduces duplicate processing
 - **Rate Limiting**: Built-in delays to respect server limits
 
@@ -271,6 +286,7 @@ The system is designed for easy extension:
 ### Debug Mode
 
 Enable debug logging for detailed troubleshooting:
+
 ```python
 import logging
 logging.basicConfig(level=logging.DEBUG)

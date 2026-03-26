@@ -2,38 +2,23 @@
 Details engine orchestrator for processing tender details.
 """
 
-from typing import Dict, List, Type
+from typing import Dict, List, Optional
 from crawlers.interfaces import IDetailsStrategy
-from crawlers.strategies import PdfDetailsStrategy, PostbackDetailsStrategy
+from crawlers.strategies import DetailsFactory
 from utils.file_utils import load_tenders_needing_details, update_tender_with_details
 
 
 class DetailsEngine:
     """Main orchestrator for details extraction workflow."""
-    
-    def __init__(self):
-        """Initialize details engine with available strategies."""
-        self.strategies: Dict[str, IDetailsStrategy] = {}
-        self._register_default_strategies()
-        print(f"Initialized DetailsEngine with {len(self.strategies)} strategies")
-    
-    def _register_default_strategies(self):
-        """Register default details extraction strategies."""
-        self.register_strategy("pdf", PdfDetailsStrategy())
-        self.register_strategy("postback", PostbackDetailsStrategy())
-    
-    def register_strategy(self, strategy_type: str, strategy: IDetailsStrategy):
-        """
-        Register a details extraction strategy.
-        
-        Args:
-            strategy_type: Type identifier for the strategy
-            strategy: Strategy instance implementing IDetailsStrategy
-        """
-        self.strategies[strategy_type] = strategy
-        print(f"Registered strategy: {strategy_type}")
-    
-    def get_strategy_for_tender(self, tender: Dict) -> IDetailsStrategy:
+
+    def __init__(
+        self,
+        details_factory: Optional[type] = None,
+    ):
+        """Initialize details engine with factory."""
+        self.details_factory = details_factory or DetailsFactory
+
+    def get_strategy_for_tender(self, tender: Dict) -> Optional[IDetailsStrategy]:
         """
         Get the appropriate strategy for processing a tender.
         
@@ -41,10 +26,12 @@ class DetailsEngine:
             tender: Tender dictionary
             
         Returns:
-            Strategy instance that can handle the tender
+            Strategy instance that can handle the tender or None
         """
-        for strategy_type, strategy in self.strategies.items():
-            if strategy.can_handle(tender):
+        # Try each strategy to see if it can handle the tender
+        for strategy_type in self.details_factory.get_available_strategies():
+            strategy = self.details_factory.create_strategy(strategy_type)
+            if strategy and strategy.can_handle(tender):
                 print(f"Selected strategy '{strategy_type}' for tender {tender.get('number', 'unknown')}")
                 return strategy
         
@@ -63,11 +50,13 @@ class DetailsEngine:
         """
         strategy_tenders = {}
         
-        for strategy_type, strategy in self.strategies.items():
-            filtered_tenders = strategy.filter_tenders(tenders)
-            if filtered_tenders:
-                strategy_tenders[strategy_type] = filtered_tenders
-                print(f"Strategy '{strategy_type}' can handle {len(filtered_tenders)} tenders")
+        for strategy_type in self.details_factory.get_available_strategies():
+            strategy = self.details_factory.create_strategy(strategy_type)
+            if strategy:
+                filtered_tenders = strategy.filter_tenders(tenders)
+                if filtered_tenders:
+                    strategy_tenders[strategy_type] = filtered_tenders
+                    print(f"Strategy '{strategy_type}' can handle {len(filtered_tenders)} tenders")
         
         return strategy_tenders
     
@@ -177,4 +166,4 @@ class DetailsEngine:
         Returns:
             List of strategy type identifiers
         """
-        return list(self.strategies.keys())
+        return self.details_factory.get_available_strategies()

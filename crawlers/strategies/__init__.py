@@ -9,12 +9,7 @@ from .crawler_factory import CrawlerFactory
 from ..interfaces.details_strategy import IDetailsStrategy
 from .pdf_details_strategy import PdfDetailsStrategy
 from .postback_details_strategy import PostbackDetailsStrategy
-from .details_factory import (
-    DetailsFactory,
-    get_details_factory,
-    create_details_strategy,
-    create_details_strategy_for_portal
-)
+from .details_factory import DetailsFactory
 
 __all__ = [
     'ICrawlerStrategy', 
@@ -24,8 +19,5 @@ __all__ = [
     'IDetailsStrategy',
     'PdfDetailsStrategy',
     'PostbackDetailsStrategy',
-    'DetailsFactory',
-    'get_details_factory',
-    'create_details_strategy',
-    'create_details_strategy_for_portal'
+    'DetailsFactory'
 ]

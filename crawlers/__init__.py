@@ -18,10 +18,7 @@ from .strategies import (
     CrawlerFactory,
     PdfDetailsStrategy,
     PostbackDetailsStrategy,
-    DetailsFactory,
-    get_details_factory,
-    create_details_strategy,
-    create_details_strategy_for_portal
+    DetailsFactory
 )
 
 # Models
@@ -49,9 +46,6 @@ __all__ = [
     'PdfDetailsStrategy',
     'PostbackDetailsStrategy',
     'DetailsFactory',
-    'get_details_factory',
-    'create_details_strategy',
-    'create_details_strategy_for_portal',
     
     # Models
     'TenderModel',

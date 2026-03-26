@@ -7,7 +7,7 @@ Integrates PDF and postback details extraction strategies.
 import argparse
 import sys
 from typing import Optional
-from crawlers.core.details_engine import DetailsEngine
+from crawlers.core import DetailsEngine
 
 
 def main():

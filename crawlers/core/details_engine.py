@@ -3,9 +3,8 @@ Details engine orchestrator for processing tender details.
 """
 
 from typing import Dict, List, Type
-from crawlers.interfaces.details_strategy import IDetailsStrategy
-from crawlers.strategies.pdf_details_strategy import PdfDetailsStrategy
-from crawlers.strategies.postback_details_strategy import PostbackDetailsStrategy
+from crawlers.interfaces import IDetailsStrategy
+from crawlers.strategies import PdfDetailsStrategy, PostbackDetailsStrategy
 from utils.file_utils import load_tenders_needing_details, update_tender_with_details
 
 

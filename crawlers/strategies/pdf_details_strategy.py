@@ -3,7 +3,7 @@ PDF details extraction strategy implementation.
 """
 
 from typing import List, Dict, Set
-from crawlers.interfaces.details_strategy import IDetailsStrategy
+from crawlers.interfaces import IDetailsStrategy
 from crawlers.processors.pdf_text_extractor import PdfTextExtractor
 from utils.config_resolver import load_config_with_refs
 from models.tender import TenderModel

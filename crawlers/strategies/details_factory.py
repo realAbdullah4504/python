@@ -3,9 +3,8 @@ Factory for creating details extraction strategies.
 """
 
 from typing import Dict, Type, Optional, List
-from crawlers.interfaces.details_strategy import IDetailsStrategy
-from crawlers.strategies.pdf_details_strategy import PdfDetailsStrategy
-from crawlers.strategies.postback_details_strategy import PostbackDetailsStrategy
+from crawlers.interfaces import IDetailsStrategy
+from crawlers.strategies import PdfDetailsStrategy, PostbackDetailsStrategy
 
 
 class DetailsFactory:

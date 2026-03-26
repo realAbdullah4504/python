@@ -3,7 +3,7 @@ Postback details extraction strategy implementation.
 """
 
 from typing import List, Dict
-from crawlers.interfaces.details_strategy import IDetailsStrategy
+from crawlers.interfaces import IDetailsStrategy
 from crawlers.processors.postback_navigator import PostbackNavigator
 from utils.config_resolver import load_config_with_refs
 from models.tender import TenderModel

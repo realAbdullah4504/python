@@ -4,6 +4,237 @@
 
 This is a modular, extensible web crawling system designed to extract tender information from various government and procurement portals. The system uses a strategy pattern to handle different portal types and structures, providing a unified interface for data collection and processing.
 
+## Details Extraction System
+
+The system includes a comprehensive details extraction framework for processing tender documents and web pages.
+
+### Details Strategy Interface (`interfaces/details_strategy.py`)
+
+The `IDetailsStrategy` abstract base class defines the contract for all details extraction strategies:
+
+**Required Methods**:
+- `extract_details()`: Extract details for a single tender
+- `can_handle()`: Check if strategy can handle a tender
+- `get_strategy_type()`: Return strategy identifier
+- `filter_tenders()`: Filter tenders this strategy can process
+
+**Common Methods**:
+- `validate_tender()`: Validate tender has required fields
+- `process_tender()`: Process tender with error handling
+
+### Details Engine (`core/details_engine.py`)
+
+The `DetailsEngine` class orchestrates details extraction workflow:
+
+**Key Features**:
+- Strategy registration and management
+- Tender filtering by strategy type
+- Unified processing interface
+- Error handling and logging
+
+**Main Methods**:
+- `run()`: Execute complete details extraction workflow
+- `process_tender()`: Process single tender with appropriate strategy
+- `filter_tenders_by_strategy()`: Group tenders by processing strategy
+
+### Available Details Strategies
+
+#### PDF Details Strategy (`strategies/pdf_details_strategy.py`)
+
+Handles extraction from PDF documents using both direct text extraction and OCR fallback.
+
+**Features**:
+- Direct PDF text extraction using PyPDF2
+- OCR fallback for scanned PDFs using Tesseract
+- PDF URL validation and downloading
+- Configurable timeout settings
+
+**Use Cases**:
+- Portals with downloadable PDF documents
+- Scanned tender documents requiring OCR
+- Structured PDF files with embedded text
+
+#### Postback Details Strategy (`strategies/postback_details_strategy.py`)
+
+Handles extraction from web pages requiring postback navigation.
+
+**Features**:
+- Playwright-based web navigation
+- Postback event simulation
+- Pagination target extraction
+- Browser context management
+
+**Use Cases**:
+- Portals with JavaScript-based navigation
+- Sites requiring form submissions
+- Multi-page tender listings
+
+### Utility Components
+
+#### PDF Text Extractor (`processors/pdf_text_extractor.py`)
+
+Utility class for PDF processing:
+
+**Features**:
+- PDF download with timeout handling
+- Direct text extraction from PDF bytes
+- OCR processing for scanned documents
+- Multi-language text extraction (Spanish, English)
+
+#### Postback Navigator (`processors/postback_navigator.py`)
+
+Utility class for web navigation:
+
+**Features**:
+- Browser context setup and cleanup
+- Pagination target extraction
+- Tender details navigation
+- Postback event simulation
+
+### Details Factory (`strategies/details_factory.py`)
+
+Factory for creating details strategies based on configuration:
+
+**Features**:
+- Strategy registration and creation
+- Portal configuration-based strategy selection
+- Global factory instance for convenience
+
+### Usage
+
+#### Basic Details Extraction
+
+```python
+from crawlers.core.details_engine import DetailsEngine
+
+# Initialize engine
+engine = DetailsEngine()
+
+# Run details extraction
+result = engine.run()
+print(f"Processed {result['processed']} tenders")
+```
+
+#### Strategy-Specific Processing
+
+```python
+from crawlers.strategies.details_factory import create_details_strategy
+
+# Create specific strategy
+pdf_strategy = create_details_strategy("pdf")
+
+# Filter and process tenders
+tenders = load_tenders_needing_details()
+pdf_tenders = pdf_strategy.filter_tenders(tenders)
+
+for tender in pdf_tenders:
+    enriched_tender = pdf_strategy.process_tender(tender)
+    update_tender_with_details(enriched_tender)
+```
+
+#### Command Line Interface
+
+```bash
+# Process all tenders with available strategies
+python crawlers/crawl_details.py
+
+# Process with specific strategy
+python crawlers/crawl_details.py --strategy pdf
+
+# Limit number of tenders
+python crawlers/crawl_details.py --max-tenders 10
+
+# List available strategies
+python crawlers/crawl_details.py --list-strategies
+```
+
+### Backward Compatibility
+
+The original scripts are preserved with modular backends:
+
+- `crawl_details_pdf_modular.py`: PDF extraction using new modular system
+- `crawl_details_postback_modular.py`: Postback extraction using new modular system
+
+These maintain the original interface while using the new architecture.
+
+### Configuration
+
+Details extraction is configured through the existing portal configuration:
+
+```json
+{
+  "portals": [
+    {
+      "name": "Portal Name",
+      "config": {
+        "details": {
+          "type": "pdf|postback",
+          "timeout": 60
+        }
+      }
+    }
+  ]
+}
+```
+
+### Integration with Existing System
+
+The details extraction system integrates seamlessly with the existing crawler architecture:
+
+1. **Listing Crawling**: Main crawler extracts tender listings
+2. **Details Extraction**: Details engine processes tenders needing details
+3. **Unified Storage**: All data saved to standardized NDJSON format
+
+### Error Handling
+
+The system implements comprehensive error handling:
+
+- **Strategy Selection**: Graceful fallback if strategy unavailable
+- **Network Errors**: Retry logic and timeout handling
+- **Processing Errors**: Individual tender failures don't stop batch processing
+- **Validation**: Tender validation before processing
+
+### Performance Considerations
+
+- **Memory Efficiency**: Tenders processed individually to minimize memory usage
+- **Browser Management**: Proper cleanup of browser resources
+- **Parallel Processing**: Can be extended for concurrent strategy execution
+- **Caching**: Strategy instances reused for efficiency
+
+### Extensibility
+
+Adding new details extraction strategies:
+
+1. Implement `IDetailsStrategy` interface
+2. Register with `DetailsFactory`
+3. Add configuration support
+4. Test with sample data
+
+```python
+from crawlers.interfaces.details_strategy import IDetailsStrategy
+
+class CustomDetailsStrategy(IDetailsStrategy):
+    def extract_details(self, tender):
+        # Implementation here
+        pass
+    
+    def can_handle(self, tender):
+        # Logic to determine if this strategy applies
+        return True
+    
+    def get_strategy_type(self):
+        return "custom"
+    
+    def filter_tenders(self, tenders):
+        # Filter tenders this strategy can handle
+        return tenders
+
+# Register the strategy
+from crawlers.strategies.details_factory import get_details_factory
+factory = get_details_factory()
+factory.register_strategy("custom", CustomDetailsStrategy)
+```
+
 ## Architecture
 
 The system follows a layered architecture with clear separation of concerns:

@@ -53,12 +53,17 @@ class DetailsFactory:
         Raises:
             ValueError: If no suitable strategy is found
         """
+        # Get the portal name from config
+        portal_name = portal_config.get('name')
+        
+        # Create a mock tender to test strategy compatibility
+        mock_tender = {'portal_name': portal_name}
+        
         # Try each strategy to see if it can handle the portal
         for strategy_type, strategy_class in cls._strategies.items():
             strategy = strategy_class()
-            # Check for portal-specific handling first, then general handling
-            if (hasattr(strategy, 'can_handle_portal') and strategy.can_handle_portal(portal_config)) or \
-               (hasattr(strategy, 'can_handle') and strategy.can_handle(portal_config)):
+            # Check if strategy can handle tenders from this portal
+            if strategy.can_handle(mock_tender):
                 print(f"Selected {strategy_type} details strategy")
                 return strategy
         

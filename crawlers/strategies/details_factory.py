@@ -49,26 +49,36 @@ class DetailsFactory:
             
         Returns:
             IDetailsStrategy instance appropriate for the portal or None
-            
-        Raises:
-            ValueError: If no suitable strategy is found
         """
-        # Get the portal name from config
-        portal_name = portal_config.get('name')
+        # First try configuration-driven selection
+        details_config = portal_config.get("details", {})
+        details_type = details_config.get("type")
         
-        # Create a mock tender to test strategy compatibility
+        if details_type and details_type in cls._strategies:
+            try:
+                strategy_class = cls._strategies[details_type]
+                strategy_instance = strategy_class()
+                print(f"Selected {details_type} details strategy from configuration")
+                return strategy_instance
+            except Exception as e:
+                print(f"Error creating configured strategy {details_type}: {e}")
+        
+        # Fallback to can_handle method
+        portal_name = portal_config.get('name')
         mock_tender = {'portal_name': portal_name}
         
-        # Try each strategy to see if it can handle the portal
         for strategy_type, strategy_class in cls._strategies.items():
-            strategy = strategy_class()
-            # Check if strategy can handle tenders from this portal
-            if strategy.can_handle(mock_tender):
-                print(f"Selected {strategy_type} details strategy")
-                return strategy
+            try:
+                strategy = strategy_class()
+                if strategy.can_handle(mock_tender):
+                    print(f"Selected {strategy_type} details strategy via can_handle check")
+                    return strategy
+            except Exception as e:
+                print(f"Error testing strategy {strategy_type}: {e}")
+                continue
         
         # If no strategy can handle, return None (details are optional)
-        print("No suitable details strategy found for portal configuration")
+        print(f"No suitable details strategy found for portal: {portal_name}")
         return None
     
     @classmethod
@@ -82,14 +92,7 @@ class DetailsFactory:
         Returns:
             Strategy instance or None if no suitable strategy found
         """
-        details_config = portal_config.get("config", {}).get("details", {})
-        details_type = details_config.get("type")
-        
-        if not details_type:
-            print("No details type specified in portal configuration")
-            return None
-        
-        return cls.create_strategy(details_type)
+        return cls.create_crawler(portal_config)
     
     @classmethod
     def register_strategy(cls, strategy_type: str, strategy_class: type) -> None:
@@ -126,7 +129,25 @@ class DetailsFactory:
         Returns:
             True if a suitable strategy exists, False otherwise
         """
-        details_config = portal_config.get("config", {}).get("details", {})
+        # Check configuration-driven selection first
+        details_config = portal_config.get("details", {})
         details_type = details_config.get("type")
         
-        return details_type in cls._strategies
+        if details_type and details_type in cls._strategies:
+            return True
+        
+        # Fallback to can_handle check
+        portal_name = portal_config.get('name')
+        if not portal_name:
+            return False
+            
+        mock_tender = {'portal_name': portal_name}
+        for strategy_class in cls._strategies.values():
+            try:
+                strategy = strategy_class()
+                if strategy.can_handle(mock_tender):
+                    return True
+            except Exception:
+                continue
+        
+        return False

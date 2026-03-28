@@ -135,17 +135,19 @@ for tender in pdf_tenders:
 #### Command Line Interface
 
 ```bash
-# Process all tenders with available strategies
-python crawlers/crawl_details.py
+# Primary entry point (pipeline)
+python crawlers/main.py
 
-# Process with specific strategy
-python crawlers/crawl_details.py --strategy pdf
+# Listing crawling (test/utility script)
+python crawlers/crawl_listings.py
 
-# Limit number of tenders
-python crawlers/crawl_details.py --max-tenders 10
+# Details extraction (test/utility scripts)
+python crawlers/crawl_details_pdf.py
+python crawlers/crawl_details_postback.py
 
-# List available strategies
-python crawlers/crawl_details.py --list-strategies
+# Backward-compatible wrappers using the modular details system
+python crawlers/crawl_details_pdf_modular.py
+python crawlers/crawl_details_postback_modular.py
 ```
 
 ### Backward Compatibility
@@ -241,14 +243,18 @@ The system follows a layered architecture with clear separation of concerns:
 
 ```
 crawlers/
-├── main.py                 # Entry point and public API
-├── core/                   # Orchestration components
-├── strategies/             # Crawler strategy implementations
-├── interfaces/             # Abstract interfaces and contracts
-├── models/                 # Data models and structures
-├── processors/             # Data processing utilities
-├── pagination/             # Pagination handling
-└── config/                 # Configuration management
+├── main.py                         # Primary entry point (pipeline)
+├── core/                           # Orchestration components
+├── strategies/                     # Listing + details strategies and factories
+├── interfaces/                     # Abstract interfaces and contracts
+├── models/                         # Data models and structures
+├── processors/                     # Data processing utilities
+├── pagination/                     # Pagination handlers
+├── crawl_listings.py               # Test/utility script (listing crawling)
+├── crawl_details_pdf.py            # Test/utility script (PDF details)
+├── crawl_details_postback.py       # Test/utility script (postback details)
+├── crawl_details_pdf_modular.py    # Backward-compatible wrapper (modular details backend)
+└── crawl_details_postback_modular.py  # Backward-compatible wrapper (modular details backend)
 ```
 
 ## Core Components
@@ -258,15 +264,16 @@ crawlers/
 The main module provides the primary public interface for the crawling system:
 
 ```python
-def crawl_all_tenders(url: str, portal_config: Dict, seen_tender_numbers: Set[str]) -> List[TenderModel]
+def main() -> None
 ```
 
-**Purpose**: Main function to crawl and parse all tenders from a portal using the strategy pattern.
+**Purpose**: Primary pipeline entry point that delegates orchestration to `CrawlerEngine` and `DetailsEngine`.
 
 **Key Features**:
-- Uses `CrawlerFactory` to select appropriate crawler strategy
-- Handles error cases gracefully
-- Returns standardized `TenderModel` objects
+- Delegates listing crawling to `CrawlerEngine`
+- Delegates details enrichment to `DetailsEngine`
+
+Note: In the current code, the listing phase is present but commented out, and `main.py` runs the details phase.
 
 ### 2. Crawler Engine (`core/crawler_engine.py`)
 
@@ -408,16 +415,17 @@ The system uses JSON configuration files to define portal settings:
 ### Basic Usage
 
 ```python
-from crawlers.main import crawl_all_tenders
-from crawlers.core import CrawlerEngine
+from crawlers.core import CrawlerEngine, DetailsEngine
 
-# Option 1: Direct crawling
-tenders = crawl_all_tenders(url, portal_config, seen_numbers)
+# Option 1: Run the listing crawler engine
+crawler_engine = CrawlerEngine()
+crawler_summary = crawler_engine.run()
+print(f"Processed {crawler_summary['total_tenders']} tenders from {crawler_summary['portals_processed']} portals")
 
-# Option 2: Using engine (recommended)
-engine = CrawlerEngine()
-result = engine.run()
-print(f"Processed {result['total_tenders']} tenders from {result['portals_processed']} portals")
+# Option 2: Run the details enrichment engine
+details_engine = DetailsEngine()
+details_summary = details_engine.run()
+print(f"Enriched {details_summary['processed']} tenders from {details_summary['portals_processed']} portals")
 ```
 
 ### Adding New Portal Support
@@ -465,12 +473,81 @@ The system implements comprehensive error handling:
 5. **Logging**: Use structured logging for debugging
 6. **Rate Limiting**: Respect portal rate limits and robots.txt
 
-## Dependencies
+## Requirements and Dependencies
 
-- **pydantic**: Data validation and modeling
-- **requests**: HTTP client for web scraping
-- **beautifulsoup4**: HTML parsing
-- **lxml**: XML/HTML parser (optional)
+### Python Packages
+
+Install all Python dependencies from `requirements.txt`:
+
+```bash
+pip install -r requirements.txt
+```
+
+**Current dependencies**:
+- `playwright==1.48.0`: Browser automation for postback navigation
+- `requests==2.31.0`: HTTP client for web scraping
+- `beautifulsoup4==4.12.2`: HTML parsing and data extraction
+- `PyPDF2==3.0.1`: PDF text extraction
+- `pytesseract==0.3.10`: OCR for scanned PDFs
+- `Pillow==10.0.0`: Image processing for OCR
+- `pdf2image==1.16.3`: PDF to image conversion for OCR
+- `langdetect==1.0.9`: Language detection for extracted text
+- `charset-normalizer==3.3.2`: Text encoding normalization
+
+### System Dependencies
+
+#### Playwright Browsers
+After installing Python packages, install Playwright browsers:
+
+```bash
+playwright install
+```
+
+#### Tesseract OCR
+Required for PDF OCR functionality.
+
+**Windows**:
+```bash
+# Option 1: Chocolatey
+choco install tesseract
+
+# Option 2: Download installer
+# https://github.com/UB-Mannheim/tesseract/wiki
+```
+
+**macOS**:
+```bash
+brew install tesseract
+```
+
+**Linux (Ubuntu/Debian)**:
+```bash
+sudo apt update
+sudo apt install tesseract-ocr
+```
+
+### Verification Commands
+
+Verify all dependencies are installed correctly:
+
+```bash
+# Verify Python packages
+pip list | grep -E "(playwright|requests|beautifulsoup4|PyPDF2|pytesseract|Pillow|pdf2image|langdetect|charset-normalizer)"
+
+# Verify Playwright browsers
+playwright install --dry-run
+
+# Verify Tesseract
+tesseract --version
+```
+
+### Optional: Development Dependencies
+
+For development and testing:
+
+```bash
+pip install pytest pytest-asyncio black flake8
+```
 
 ## Output Format
 

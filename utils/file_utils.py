@@ -141,6 +141,27 @@ def load_portal_config(config_path: str = "config/portals.json") -> Dict:
     return config
 
 
+def load_tenders_needing_pci_analysis(filename: str = "outputs/tenders.ndjson") -> List[Dict]:
+    """Load tenders that have full_text but no pci_score yet"""
+    tenders_needing_analysis = []
+    
+    try:
+        with open(filename, 'r', encoding='utf-8') as f:
+            for line in f:
+                if line.strip():
+                    tender = json.loads(line)
+                    # Check if tender has full_text but no pci_score
+                    has_full_text = bool(tender.get('full_text', '').strip())
+                    has_pci_score = 'pci_score' in tender
+                    if has_full_text and not has_pci_score:
+                        tenders_needing_analysis.append(tender)
+    except FileNotFoundError:
+        pass
+    
+    print(f"Found {len(tenders_needing_analysis)} tenders needing PCI analysis")
+    return tenders_needing_analysis
+
+
 def ensure_output_directory(file_path: str) -> None:
     """Create output directory if it doesn't exist"""
     os.makedirs(os.path.dirname(file_path), exist_ok=True)

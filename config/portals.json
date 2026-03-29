@@ -27,13 +27,13 @@
     "pagination_types": {
       "postback": {
         "type": "postback",
-        "max_pages": 2
+        "max_pages": 1
       },
       "datatables": {
         "type": "datatables",
         "method": "POST",
         "page_size": 20,
-        "max_pages": 2,
+        "max_pages": 1,
         "headers": {
           "Content-Type": "application/json; charset=utf-8"
         }

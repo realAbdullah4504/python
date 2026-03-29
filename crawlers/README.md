@@ -132,33 +132,6 @@ for tender in pdf_tenders:
     update_tender_with_details(enriched_tender)
 ```
 
-#### Command Line Interface
-
-```bash
-# Primary entry point (pipeline)
-python crawlers/main.py
-
-# Listing crawling (test/utility script)
-python crawlers/crawl_listings.py
-
-# Details extraction (test/utility scripts)
-python crawlers/crawl_details_pdf.py
-python crawlers/crawl_details_postback.py
-
-# Backward-compatible wrappers using the modular details system
-python crawlers/crawl_details_pdf_modular.py
-python crawlers/crawl_details_postback_modular.py
-```
-
-### Backward Compatibility
-
-The original scripts are preserved with modular backends:
-
-- `crawl_details_pdf_modular.py`: PDF extraction using new modular system
-- `crawl_details_postback_modular.py`: Postback extraction using new modular system
-
-These maintain the original interface while using the new architecture.
-
 ### Configuration
 
 Details extraction is configured through the existing portal configuration:
@@ -249,12 +222,7 @@ crawlers/
 ├── interfaces/                     # Abstract interfaces and contracts
 ├── models/                         # Data models and structures
 ├── processors/                     # Data processing utilities
-├── pagination/                     # Pagination handlers
-├── crawl_listings.py               # Test/utility script (listing crawling)
-├── crawl_details_pdf.py            # Test/utility script (PDF details)
-├── crawl_details_postback.py       # Test/utility script (postback details)
-├── crawl_details_pdf_modular.py    # Backward-compatible wrapper (modular details backend)
-└── crawl_details_postback_modular.py  # Backward-compatible wrapper (modular details backend)
+└── pagination/                     # Pagination handlers
 ```
 
 ## Core Components

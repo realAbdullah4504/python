@@ -4,13 +4,7 @@ import unicodedata
 import re
 from config.keywords_pci_dss_americas import SCORING_CONFIG, PCI_COMPLIANCE_SIGNALS
 from datetime import datetime
-
-import json
-
-with open("config/portals.json") as f:
-    config = json.load(f)
-
-URL = config["portals"][0]["listing_urls"][0]
+from utils.file_utils import load_tenders_from_ndjson, update_tender_with_details, ensure_output_directory
 
 # ------------------------------
 # Text Utilities
@@ -45,10 +39,11 @@ def score_pci_compliance(text: str) -> (int, list):
     
     score = 0
     if matched_primary:
-        score += len(matched_primary) * SCORING_CONFIG["pci"]["primary_pci"]
+        score += SCORING_CONFIG["pci"]["primary_pci"]  # Score only 1 point if any primary keyword matches
     if matched_secondary:
         score += len(matched_secondary) * SCORING_CONFIG["pci"]["version_4"]
     
+    print(matched_primary,matched_secondary)
     all_matched = matched_primary + matched_secondary
     return score, all_matched
 
@@ -65,80 +60,58 @@ def score_tender(text: str) -> dict:
 
 
 # ------------------------------
-# File Utilities
-# ------------------------------
-def load_enriched_tenders(filename: str) -> list[Dict]:
-    """Load enriched NDJSON (skip metadata line)."""
-    tenders = []
-
-    with open(filename, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-        for line in lines:
-            if line.strip():
-                tenders.append(json.loads(line))
-    # Sort tenders by created_at (latest first)
-    tenders.sort(
-        key=lambda x: datetime.fromisoformat(x["created_at"]),
-        reverse=True
-    )
-    return tenders
-
-
-def save_scored_tenders(tenders: list, filename: str):
-    """Save enriched scored tenders to NDJSON."""
-    with open(filename, "w", encoding="utf-8") as f:
-        for tender in tenders:
-            json.dump(tender, f, ensure_ascii=False)
-            f.write("\n")
-
-def load_processed_tenders_from_ndjson(filename: str = "outputs/pci_tenders.ndjson") -> set[str]:
-    """Load processed tenders from NDJSON file"""
-    existing_numbers = set()
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            
-            # Process tender records
-            for line in lines:
-                if line.strip():
-                    data = json.loads(line)
-                    existing_numbers.add(data.get('number'))
-        
-    except FileNotFoundError:
-        print(f"File {filename} not found. Starting with empty set.")
-    
-    print(f"Loaded {len(existing_numbers)} processed tenders from {filename}")
-    return existing_numbers
-
-# ------------------------------
 # Main Workflow
 # ------------------------------
 def main():
-    enriched_tenders_file = "outputs/enriched_tenders.ndjson"
-    scored_tenders_file = "outputs/scored_tenders.ndjson"
-
-    tenders = load_enriched_tenders(enriched_tenders_file)
-    processed_tenders = load_processed_tenders_from_ndjson()
+    tenders_file = "outputs/tenders.ndjson"
     
-
-    scored_tenders = []
+    # Ensure output directory exists
+    ensure_output_directory(tenders_file)
+    
+    # Load all tenders from the file
+    tenders = load_tenders_from_ndjson(tenders_file)
+    
+    # Track which tenders we've already scored
+    scored_count = 0
+    skipped_count = 0
+    
     for tender in tenders:
-        if tender["number"] in processed_tenders:
+        # Skip if already scored (has pci_score field)
+        if 'pci_score' in tender:
+            skipped_count += 1
             continue
-        full_text = tender.get("full_text", "")
-        enrichment = score_tender(full_text)
+            
+        # Get text for scoring (combine both full_text and description for comprehensive search)
+        text_to_score = "{} {}".format(
+            tender.get("full_text", ""), 
+            tender.get("description", "")
+        ).strip()
+
+        # Score the tender
+        enrichment = score_tender(text_to_score)
         tender.update(enrichment)
-        scored_tenders.append(tender)
-
-    save_scored_tenders(scored_tenders, scored_tenders_file)
-
-    # Sample output
-    for t in scored_tenders:
-        print(
-            f"{t['number']}: "
-            f"PCI Score={t.get('pci_score', 0)}, "
-            f"PCI Keywords={t.get('matched_pci_keywords', [])}"
-        )
+        tender["scored_at"] = datetime.now().isoformat()
+        
+        # Update the tender in the file
+        if update_tender_with_details(tender, tenders_file):
+            scored_count += 1
+            print(
+                "Scored {}: "
+                "PCI Score={}, "
+                "PCI Keywords={}".format(
+                    tender['number'],
+                    tender.get('pci_score', 0),
+                    tender.get('matched_pci_keywords', [])
+                )
+            )
+        else:
+            print("Failed to update tender {}".format(tender['number']))
+    
+    print("\nSummary:")
+    print("- Total tenders processed: {}".format(len(tenders)))
+    print("- Newly scored: {}".format(scored_count))
+    print("- Already scored (skipped): {}".format(skipped_count))
+    print("- File updated: {}".format(tenders_file))
 
 
 if __name__ == "__main__":

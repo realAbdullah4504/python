@@ -5,7 +5,7 @@ Preserves the original interface while using the new modular architecture.
 """
 
 import sys
-from crawlers.core.details_engine import DetailsEngine
+from steps.core.details_engine import DetailsEngine
 
 
 class PostbackDetailsCrawler:

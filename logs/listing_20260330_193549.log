@@ -1,0 +1,15 @@
+2026-03-30 19:35:49,492 - crawlers.core.crawler_engine - INFO - Starting listing phase
+2026-03-30 19:35:49,494 - crawlers.core.crawler_engine - INFO - Processing portal: Comprar Gob AR (Argentina) - 2 URLs
+2026-03-30 19:35:49,496 - crawlers.core.crawler_engine - INFO - Crawling URL: https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=
+2026-03-30 19:36:23,340 - crawlers.core.crawler_engine - INFO - Extracted 10 tenders from https://comprar.gob.ar/Compras.aspx?qs=W1HXHGHtH10=
+2026-03-30 19:36:23,340 - crawlers.core.crawler_engine - INFO - Crawling URL: https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs=
+2026-03-30 19:36:32,711 - crawlers.core.crawler_engine - INFO - Extracted 10 tenders from https://comprar.gob.ar/Compras.aspx?qs=iouVZE0yWCs=
+2026-03-30 19:36:32,728 - crawlers.core.crawler_engine - INFO - Saved 20 tenders from Comprar Gob AR
+2026-03-30 19:36:32,730 - crawlers.core.crawler_engine - INFO - Processing portal: CSJN Adquisiciones (Argentina) - 1 URLs
+2026-03-30 19:36:32,732 - crawlers.core.crawler_engine - INFO - Crawling URL: https://www.csjn.gov.ar/transparencia/adquisiciones-y-contrataciones
+2026-03-30 19:36:35,913 - crawlers.core.crawler_engine - INFO - Extracted 20 tenders from https://www.csjn.gov.ar/transparencia/adquisiciones-y-contrataciones
+2026-03-30 19:36:35,917 - crawlers.core.crawler_engine - INFO - Saved 20 tenders from CSJN Adquisiciones
+2026-03-30 19:36:35,917 - crawlers.core.crawler_engine - INFO - Total tenders found across all portals: 40
+2026-03-30 19:36:35,917 - crawlers.core.crawler_engine - INFO - Completed listing phase
+2026-03-30 19:36:35,917 - crawlers.core.crawler_engine - INFO -   Summary - total_tenders: 40
+2026-03-30 19:36:35,918 - crawlers.core.crawler_engine - INFO -   Summary - portals_processed: 2
